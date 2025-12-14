@@ -122,12 +122,73 @@ public class PlaylistLoader
         public final String name;
         public final List<String> items;
         public final boolean shuffle;
+        private List<com.sedmelluq.discord.lavaplayer.track.AudioTrack> tracks;
         
         private Playlist(String name, List<String> items, boolean shuffle)
         {
             this.name = name;
             this.items = items;
             this.shuffle = shuffle;
+            this.tracks = new java.util.ArrayList<>();
+        }
+        
+        public List<String> getItems()
+        {
+            return items;
+        }
+        
+        public List<com.sedmelluq.discord.lavaplayer.track.AudioTrack> getTracks()
+        {
+            return tracks;
+        }
+        
+        public void loadTracks(com.soundbot.audio.PlayerManager manager, java.util.function.Consumer<com.sedmelluq.discord.lavaplayer.track.AudioTrack> consumer, Runnable callback)
+        {
+            if(items.isEmpty())
+            {
+                callback.run();
+                return;
+            }
+            manager.loadItemOrdered(manager, items.get(0), new com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler() {
+                private int index = 0;
+                @Override
+                public void trackLoaded(com.sedmelluq.discord.lavaplayer.track.AudioTrack track) {
+                    tracks.add(track);
+                    consumer.accept(track);
+                    if(++index < items.size())
+                        manager.loadItemOrdered(manager, items.get(index), this);
+                    else
+                        callback.run();
+                }
+                @Override
+                public void playlistLoaded(com.sedmelluq.discord.lavaplayer.track.AudioPlaylist playlist) {
+                    if(playlist.getSelectedTrack() != null)
+                        trackLoaded(playlist.getSelectedTrack());
+                    else if(!playlist.getTracks().isEmpty())
+                        playlist.getTracks().forEach(track -> {
+                            tracks.add(track);
+                            consumer.accept(track);
+                        });
+                    if(++index < items.size())
+                        manager.loadItemOrdered(manager, items.get(index), this);
+                    else
+                        callback.run();
+                }
+                @Override
+                public void noMatches() {
+                    if(++index < items.size())
+                        manager.loadItemOrdered(manager, items.get(index), this);
+                    else
+                        callback.run();
+                }
+                @Override
+                public void loadFailed(com.sedmelluq.discord.lavaplayer.tools.FriendlyException exception) {
+                    if(++index < items.size())
+                        manager.loadItemOrdered(manager, items.get(index), this);
+                    else
+                        callback.run();
+                }
+            });
         }
     }
 }
