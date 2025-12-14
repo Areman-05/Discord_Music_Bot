@@ -18,6 +18,8 @@ package com.soundbot.audio;
 import com.soundbot.Bot;
 import com.soundbot.entities.Pair;
 import com.soundbot.settings.Settings;
+import com.soundbot.utils.FormatUtil;
+import com.soundbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,6 +110,17 @@ public class NowplayingHandler
             lastNP.remove(guild.getIdLong());
     }
     
+    public void onTrackUpdate(AudioTrack track)
+    {
+        if(bot.getConfig().getSongInStatus())
+        {
+            if(track!=null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()<=1)
+                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
+            else
+                bot.resetGame();
+        }
+    }
+    
     public void updateTopic(long guildId, AudioTrack track, boolean paused)
     {
         Guild guild = bot.getJDA().getGuildById(guildId);
@@ -121,7 +134,7 @@ public class NowplayingHandler
         if(topic==null || topic.isEmpty())
             topic = "\u200B";
         String playing = (paused ? "\u23F8" : "\u25B6") + " " + FormatUtil.progressBar((double)track.getPosition()/track.getDuration()) + " `[" 
-                + FormatUtil.formatTime(track.getPosition()) + "/" + FormatUtil.formatTime(track.getDuration()) + "]` " 
+                + TimeUtil.formatTime(track.getPosition()) + "/" + TimeUtil.formatTime(track.getDuration()) + "]` " 
                 + FormatUtil.filter(track.getInfo().title);
         if(topic.equals(playing))
             return;
