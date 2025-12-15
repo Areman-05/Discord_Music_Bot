@@ -56,7 +56,8 @@ public class NowplayingHandler
     
     public void setLastNPMessage(Message m)
     {
-        lastNP.put(m.getGuild().getIdLong(), new Pair<>(m.getTextChannel().getIdLong(), m.getIdLong()));
+        if(m != null && m.getGuild() != null && m.getTextChannel() != null)
+            lastNP.put(m.getGuild().getIdLong(), new Pair<>(m.getTextChannel().getIdLong(), m.getIdLong()));
     }
     
     public void clearLastNPMessage(Guild guild)
@@ -66,6 +67,7 @@ public class NowplayingHandler
     
     private void updateAll()
     {
+        if(bot.getJDA() == null) return;
         Set<Long> toRemove = new HashSet<>();
         for(long guildId: lastNP.keySet())
         {
@@ -113,6 +115,7 @@ public class NowplayingHandler
     
     public void onMessageDelete(Guild guild, long messageId)
     {
+        if(guild == null) return;
         Pair<Long,Long> pair = lastNP.get(guild.getIdLong());
         if(pair==null)
             return;
@@ -138,20 +141,23 @@ public class NowplayingHandler
     
     public void updateTopic(long guildId, AudioTrack track, boolean paused)
     {
-        if(bot.getJDA() == null || track == null)
+        if(bot.getJDA() == null || track == null || track.getInfo() == null)
             return;
         Guild guild = bot.getJDA().getGuildById(guildId);
-        if(guild==null || guild.getSelfMember() == null)
+        if(guild==null || guild.getSelfMember() == null || bot.getSettingsManager() == null)
             return;
         Settings settings = bot.getSettingsManager().getSettings(guild);
+        if(settings == null) return;
         TextChannel tc = settings.getTextChannel(guild);
         if(tc==null || !guild.getSelfMember().hasPermission(tc, Permission.MANAGE_CHANNEL))
             return;
         String topic = tc.getTopic();
         if(topic==null || topic.isEmpty())
             topic = "\u200B";
-        String playing = (paused ? "\u23F8" : "\u25B6") + " " + FormatUtil.progressBar((double)track.getPosition()/track.getDuration()) + " `[" 
-                + TimeUtil.formatTime(track.getPosition()) + "/" + TimeUtil.formatTime(track.getDuration()) + "]` " 
+        long duration = track.getDuration();
+        if(duration == Long.MAX_VALUE || duration <= 0) return;
+        String playing = (paused ? "\u23F8" : "\u25B6") + " " + FormatUtil.progressBar((double)track.getPosition()/duration) + " `[" 
+                + TimeUtil.formatTime(track.getPosition()) + "/" + TimeUtil.formatTime(duration) + "]` " 
                 + FormatUtil.filter(track.getInfo().title);
         if(topic.equals(playing))
             return;
@@ -161,7 +167,7 @@ public class NowplayingHandler
         {
             tc.getManager().setTopic(shorter).queue();
         } 
-        catch(PermissionException ignored) {}
+        catch(PermissionException | RateLimitedException ignored) {}
     }
 }
 
