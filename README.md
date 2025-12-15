@@ -35,7 +35,9 @@ SoundBot soporta todas las fuentes y formatos soportados por [lavaplayer](https:
   * Listas de reproduccion de streams (M3U y PLS)
 
 ## Configuracion
-Por favor consulta la pagina de configuracion para ejecutar este bot tu mismo!
+Para configurar el bot, edita el archivo `config.txt` que se genera automaticamente al ejecutar el bot por primera vez. Necesitaras:
+- Un token de bot de Discord (obtenlo en https://discord.com/developers/applications)
+- Tu ID de usuario de Discord (para ser el propietario del bot)
 
 ## Requisitos
   * Java 11 o superior
