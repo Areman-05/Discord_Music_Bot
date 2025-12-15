@@ -157,9 +157,10 @@ public class OtherUtil
     
     public static void checkJavaVersion(Prompt prompt)
     {
-        if(!System.getProperty("java.vm.name").contains("64"))
-            prompt.alert(Prompt.Level.WARNING, "Java Version", 
-                    "It appears that you may not be using a supported Java version. Please use 64-bit java.");
+        String vmName = System.getProperty("java.vm.name");
+        if(vmName == null || !vmName.contains("64"))
+            prompt.alert(Prompt.Level.WARNING, "Version de Java", 
+                    "Parece que no estas usando una version de Java soportada. Por favor usa Java de 64 bits.");
     }
     
     public static void checkVersion(Prompt prompt)
@@ -170,9 +171,9 @@ public class OtherUtil
         // Check for new version
         String latestVersion = getLatestVersion();
         
-        if(latestVersion!=null && !latestVersion.equals(version))
+        if(latestVersion!=null && !latestVersion.equals(version) && prompt != null)
         {
-            prompt.alert(Prompt.Level.WARNING, "SoundBot Version", String.format(NEW_VERSION_AVAILABLE, version, latestVersion));
+            prompt.alert(Prompt.Level.WARNING, "Version de SoundBot", String.format(NEW_VERSION_AVAILABLE, version, latestVersion));
         }
     }
     
