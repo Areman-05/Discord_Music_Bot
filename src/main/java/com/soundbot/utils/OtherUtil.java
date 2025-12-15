@@ -140,37 +140,40 @@ public class OtherUtil
     {
         if(game==null || game.trim().isEmpty() || game.trim().equalsIgnoreCase("default"))
             return null;
-        String lower = game.toLowerCase();
+        String trimmed = game.trim();
+        String lower = trimmed.toLowerCase();
         if(lower.startsWith("playing"))
         {
-            String content = game.length() > 7 ? game.substring(7).trim() : "";
+            String content = trimmed.length() > 7 ? trimmed.substring(7).trim() : "";
             return Activity.playing(makeNonEmpty(content));
         }
         if(lower.startsWith("listening to"))
         {
-            String content = game.length() > 12 ? game.substring(12).trim() : "";
+            String content = trimmed.length() > 12 ? trimmed.substring(12).trim() : "";
             return Activity.listening(makeNonEmpty(content));
         }
         if(lower.startsWith("listening"))
         {
-            String content = game.length() > 9 ? game.substring(9).trim() : "";
+            String content = trimmed.length() > 9 ? trimmed.substring(9).trim() : "";
             return Activity.listening(makeNonEmpty(content));
         }
         if(lower.startsWith("watching"))
         {
-            String content = game.length() > 8 ? game.substring(8).trim() : "";
+            String content = trimmed.length() > 8 ? trimmed.substring(8).trim() : "";
             return Activity.watching(makeNonEmpty(content));
         }
         if(lower.startsWith("streaming"))
         {
-            String content = game.length() > 9 ? game.substring(9).trim() : "";
+            String content = trimmed.length() > 9 ? trimmed.substring(9).trim() : "";
+            if(content.isEmpty())
+                return Activity.streaming("\u200B", "https://twitch.tv/");
             String[] parts = content.split("\\s+", 2);
-            if(parts.length == 2)
+            if(parts.length == 2 && parts[0] != null && parts[1] != null)
             {
                 return Activity.streaming(makeNonEmpty(parts[1]), "https://twitch.tv/"+parts[0]);
             }
         }
-        return Activity.playing(makeNonEmpty(game));
+        return Activity.playing(makeNonEmpty(trimmed));
     }
    
     public static String makeNonEmpty(String str)
