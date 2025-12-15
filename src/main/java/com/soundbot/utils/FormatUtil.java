@@ -30,6 +30,8 @@ public class FormatUtil {
 
     public static String formatUsername(String username, String discrim)
     {
+        if(username == null)
+            username = "Usuario desconocido";
         if(discrim == null || discrim.equals("0000"))
         {
             return username;
@@ -42,16 +44,24 @@ public class FormatUtil {
 
     public static String formatUsername(UserInfo userinfo)
     {
+        if(userinfo == null)
+            return "Usuario desconocido";
         return formatUsername(userinfo.username, userinfo.discrim);
     }
 
     public static String formatUsername(User user)
     {
+        if(user == null)
+            return "Usuario desconocido";
         return formatUsername(user.getName(), user.getDiscriminator());
     }
 
     public static String progressBar(double percent)
     {
+        if(percent < 0)
+            percent = 0;
+        if(percent > 1)
+            percent = 1;
         String str = "";
         for(int i=0; i<12; i++)
             if(i == (int)(percent*12))
@@ -74,36 +84,59 @@ public class FormatUtil {
     
     public static String listOfTChannels(List<TextChannel> list, String query)
     {
-        String out = " Multiple text channels found matching \""+query+"\":";
-        for(int i=0; i<6 && i<list.size(); i++)
-            out+="\n - "+list.get(i).getName()+" (<#"+list.get(i).getId()+">)";
+        if(list == null || query == null)
+            return "";
+        String out = " Se encontraron multiples canales de texto que coinciden con \""+query+"\":";
+        int size = Math.min(6, list.size());
+        for(int i=0; i<size; i++)
+        {
+            TextChannel tc = list.get(i);
+            if(tc != null)
+                out+="\n - "+tc.getName()+" (<#"+tc.getId()+">)";
+        }
         if(list.size()>6)
-            out+="\n**And "+(list.size()-6)+" more...**";
+            out+="\n**Y "+(list.size()-6)+" mas...**";
         return out;
     }
     
     public static String listOfVChannels(List<VoiceChannel> list, String query)
     {
-        String out = " Multiple voice channels found matching \""+query+"\":";
-        for(int i=0; i<6 && i<list.size(); i++)
-            out+="\n - "+list.get(i).getAsMention()+" (ID:"+list.get(i).getId()+")";
+        if(list == null || query == null)
+            return "";
+        String out = " Se encontraron multiples canales de voz que coinciden con \""+query+"\":";
+        int size = Math.min(6, list.size());
+        for(int i=0; i<size; i++)
+        {
+            VoiceChannel vc = list.get(i);
+            if(vc != null)
+                out+="\n - "+vc.getAsMention()+" (ID:"+vc.getId()+")";
+        }
         if(list.size()>6)
-            out+="\n**And "+(list.size()-6)+" more...**";
+            out+="\n**Y "+(list.size()-6)+" mas...**";
         return out;
     }
     
     public static String listOfRoles(List<Role> list, String query)
     {
-        String out = " Multiple roles found matching \""+query+"\":";
-        for(int i=0; i<6 && i<list.size(); i++)
-            out+="\n - "+list.get(i).getName()+" (ID:"+list.get(i).getId()+")";
+        if(list == null || query == null)
+            return "";
+        String out = " Se encontraron multiples roles que coinciden con \""+query+"\":";
+        int size = Math.min(6, list.size());
+        for(int i=0; i<size; i++)
+        {
+            Role role = list.get(i);
+            if(role != null)
+                out+="\n - "+role.getName()+" (ID:"+role.getId()+")";
+        }
         if(list.size()>6)
-            out+="\n**And "+(list.size()-6)+" more...**";
+            out+="\n**Y "+(list.size()-6)+" mas...**";
         return out;
     }
     
     public static String filter(String input)
     {
+        if(input == null)
+            return "";
         return input.replace("\u202E","")
                 .replace("@everyone", "@\u0435veryone") // cyrillic letter e
                 .replace("@here", "@h\u0435re") // cyrillic letter e
