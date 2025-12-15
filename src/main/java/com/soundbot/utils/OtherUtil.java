@@ -96,6 +96,7 @@ public class OtherUtil
      * @param url url of image
      * @return inputstream of url
      */
+    @SuppressWarnings("deprecation")
     public static InputStream imageFromUrl(String url)
     {
         if(url==null)
@@ -138,7 +139,7 @@ public class OtherUtil
                 return Activity.streaming(makeNonEmpty(parts[1]), "https://twitch.tv/"+parts[0]);
             }
         }
-        return Activity.playing(game);
+        return Activity.playing(makeNonEmpty(game));
     }
    
     public static String makeNonEmpty(String str)
