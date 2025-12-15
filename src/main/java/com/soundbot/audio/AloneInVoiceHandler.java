@@ -63,7 +63,11 @@ public class AloneInVoiceHandler
                 continue;
             }
 
-            ((AudioHandler) guild.getAudioManager().getSendingHandler()).stopAndClear();
+            AudioHandler handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
+            if(handler != null)
+            {
+                handler.stopAndClear();
+            }
             guild.getAudioManager().closeAudioConnection();
 
             toRemove.add(entrySet.getKey());
@@ -91,9 +95,11 @@ public class AloneInVoiceHandler
     {
         if(guild.getAudioManager().getConnectedChannel() == null) return false;
         return guild.getAudioManager().getConnectedChannel().getMembers().stream()
-                .noneMatch(x ->
-                        !x.getVoiceState().isDeafened()
-                        && !x.getUser().isBot());
+                .noneMatch(x -> {
+                    if(x.getVoiceState() == null) return false;
+                    return !x.getVoiceState().isDeafened()
+                        && !x.getUser().isBot();
+                });
     }
 }
 
