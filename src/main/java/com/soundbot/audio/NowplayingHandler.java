@@ -76,6 +76,11 @@ public class NowplayingHandler
                 continue;
             }
             Pair<Long,Long> pair = lastNP.get(guildId);
+            if(pair == null)
+            {
+                toRemove.add(guildId);
+                continue;
+            }
             TextChannel tc = guild.getTextChannelById(pair.getKey());
             if(tc==null)
             {
@@ -117,10 +122,15 @@ public class NowplayingHandler
     
     public void onTrackUpdate(AudioTrack track)
     {
-        if(bot.getConfig().getSongInStatus())
+        if(bot.getConfig().getSongInStatus() && bot.getJDA() != null)
         {
-            if(track!=null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()<=1)
-                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
+            if(track!=null && bot.getJDA().getGuilds().stream()
+                .filter(g -> g != null && g.getSelfMember() != null && g.getSelfMember().getVoiceState() != null && g.getSelfMember().getVoiceState().inVoiceChannel())
+                .count()<=1)
+            {
+                if(bot.getJDA().getPresence() != null)
+                    bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
+            }
             else
                 bot.resetGame();
         }
@@ -128,8 +138,10 @@ public class NowplayingHandler
     
     public void updateTopic(long guildId, AudioTrack track, boolean paused)
     {
+        if(bot.getJDA() == null || track == null)
+            return;
         Guild guild = bot.getJDA().getGuildById(guildId);
-        if(guild==null)
+        if(guild==null || guild.getSelfMember() == null)
             return;
         Settings settings = bot.getSettingsManager().getSettings(guild);
         TextChannel tc = settings.getTextChannel(guild);
