@@ -228,8 +228,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) 
     {
-        votes.clear();
-        manager.getBot().getNowplayingHandler().onTrackUpdate(track);
+        if(votes != null)
+            votes.clear();
+        if(manager != null && manager.getBot() != null && manager.getBot().getNowplayingHandler() != null)
+            manager.getBot().getNowplayingHandler().onTrackUpdate(track);
     }
     
     @Override
@@ -257,6 +259,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     @Override
     public ByteBuffer provide20MsAudio() 
     {
+        if(lastFrame == null || lastFrame.getData() == null)
+            return null;
         return ByteBuffer.wrap(lastFrame.getData());
     }
 
@@ -289,11 +293,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             {
                 channelName = guild.getSelfMember().getVoiceState().getChannel().getName();
             }
-            mb.append(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **Reproduciendo en "+channelName+"...**"));
+            String successEmoji = manager.getBot().getConfig() != null ? manager.getBot().getConfig().getSuccess() : "🎶";
+            mb.append(FormatUtil.filter(successEmoji+" **Reproduciendo en "+channelName+"...**"));
             EmbedBuilder eb = new EmbedBuilder();
-            eb.setColor(guild.getSelfMember().getColor());
+            if(guild.getSelfMember().getColor() != null)
+                eb.setColor(guild.getSelfMember().getColor());
             RequestMetadata rm = getRequestMetadata();
-            if(rm.getOwner() != 0)
+            if(rm != null && rm.getOwner() != 0 && rm.user != null)
             {
                 User u = guild.getJDA().getUserById(rm.user.id);
                 if(u == null)
@@ -304,14 +310,21 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
 
             try 
             {
-                eb.setTitle(track.getInfo().title, track.getInfo().uri);
+                if(track.getInfo() != null)
+                {
+                    if(track.getInfo().uri != null)
+                        eb.setTitle(track.getInfo().title, track.getInfo().uri);
+                    else
+                        eb.setTitle(track.getInfo().title);
+                }
             }
             catch(Exception e) 
             {
-                eb.setTitle(track.getInfo().title);
+                if(track.getInfo() != null)
+                    eb.setTitle(track.getInfo().title);
             }
 
-            if(track.getInfo().length != Long.MAX_VALUE)
+            if(track.getInfo() != null && track.getInfo().length != Long.MAX_VALUE)
             {
                 String time = TimeUtil.formatTime(track.getPosition()) + " / " + TimeUtil.formatTime(track.getDuration());
                 eb.setFooter(time, null);
@@ -325,17 +338,27 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     public Message getNoMusicPlaying(JDA jda)
     {
             Guild guild = guild(jda);
+            String successEmoji = manager != null && manager.getBot() != null && manager.getBot().getConfig() != null ? manager.getBot().getConfig().getSuccess() : "🎶";
             if(guild == null || guild.getSelfMember() == null)
                 return new MessageBuilder()
-                    .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No hay musica reproduciendose**"))
+                    .setContent(FormatUtil.filter(successEmoji+" **No hay musica reproduciendose**"))
                     .build();
-            return new MessageBuilder()
-            .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No hay musica reproduciendose**"))
-            .setEmbed(new EmbedBuilder()
+            int volume = 100;
+            if(manager != null && manager.getBot() != null && manager.getBot().getSettingsManager() != null)
+            {
+                Settings s = manager.getBot().getSettingsManager().getSettings(guild);
+                if(s != null)
+                    volume = s.getVolume();
+            }
+            EmbedBuilder eb = new EmbedBuilder()
                 .setTitle("No hay musica reproduciendose")
-                .setDescription(FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(manager.getBot().getSettingsManager().getSettings(guild).getVolume()))
-                .setColor(guild.getSelfMember().getColor())
-                .build()).build();
+                .setDescription(FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(volume));
+            if(guild.getSelfMember().getColor() != null)
+                eb.setColor(guild.getSelfMember().getColor());
+            return new MessageBuilder()
+            .setContent(FormatUtil.filter(successEmoji+" **No hay musica reproduciendose**"))
+            .setEmbed(eb.build())
+            .build();
     }
 }
 
