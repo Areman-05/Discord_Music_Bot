@@ -109,7 +109,7 @@ public class BotConfig
                         + "\nLas instrucciones para obtener un token se pueden encontrar aqui:"
                         + "\nhttps://github.com/soundbot/SoundBot/wiki/Getting-a-Bot-Token."
                         + "\nToken del bot: ");
-                if(token==null)
+                if(token==null || token.isEmpty())
                 {
                     prompt.alert(Prompt.Level.WARNING, CONTEXT, "No se proporciono token! Saliendo.\n\nUbicacion del config: " + path.toAbsolutePath().toString());
                     return;
@@ -125,11 +125,13 @@ public class BotConfig
             {
                 try
                 {
-                    owner = Long.parseLong(prompt.prompt("El ID del propietario falta, o el ID proporcionado no es valido."
+                    String ownerInput = prompt.prompt("El ID del propietario falta, o el ID proporcionado no es valido."
                         + "\nPor favor proporciona el ID de usuario del propietario del bot."
                         + "\nLas instrucciones para obtener tu ID de usuario se pueden encontrar aqui:"
                         + "\nhttps://github.com/soundbot/SoundBot/wiki/Finding-Your-User-ID"
-                        + "\nID de usuario del propietario: "));
+                        + "\nID de usuario del propietario: ");
+                    if(ownerInput != null && !ownerInput.isEmpty())
+                        owner = Long.parseLong(ownerInput);
                 }
                 catch(NumberFormatException | NullPointerException ex)
                 {
@@ -198,17 +200,17 @@ public class BotConfig
     public static void writeDefaultConfig()
     {
         Prompt prompt = new Prompt(null, null, true, true);
-        prompt.alert(Prompt.Level.INFO, "SoundBot Config", "Generating default config file");
+        prompt.alert(Prompt.Level.INFO, "SoundBot Config", "Generando archivo de configuracion por defecto");
         Path path = BotConfig.getConfigPath();
         byte[] bytes = BotConfig.loadDefaultConfig().getBytes();
         try
         {
-            prompt.alert(Prompt.Level.INFO, "SoundBot Config", "Writing default config file to " + path.toAbsolutePath().toString());
+            prompt.alert(Prompt.Level.INFO, "SoundBot Config", "Escribiendo archivo de configuracion por defecto en " + path.toAbsolutePath().toString());
             Files.write(path, bytes);
         }
         catch(Exception ex)
         {
-            prompt.alert(Prompt.Level.ERROR, "SoundBot Config", "An error occurred writing the default config file: " + ex.getMessage());
+            prompt.alert(Prompt.Level.ERROR, "SoundBot Config", "Ocurrio un error al escribir el archivo de configuracion por defecto: " + ex.getMessage());
         }
     }
     
@@ -359,9 +361,12 @@ public class BotConfig
     
     public boolean isTooLong(AudioTrack track)
     {
-        if(maxSeconds<=0)
+        if(maxSeconds<=0 || track == null)
             return false;
-        return Math.round(track.getDuration()/1000.0) > maxSeconds;
+        long duration = track.getDuration();
+        if(duration == Long.MAX_VALUE)
+            return false;
+        return Math.round(duration/1000.0) > maxSeconds;
     }
 
     public String[] getAliases(String command)
