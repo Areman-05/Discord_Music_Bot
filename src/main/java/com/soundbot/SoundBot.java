@@ -116,24 +116,25 @@ public class SoundBot
                         + "Si tu prefijo no funciona, asegurate de que el 'MESSAGE CONTENT INTENT' este habilitado "
                         + "en https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot");
             }
+            LOG.info("SoundBot iniciado correctamente!");
         }
         catch (LoginException ex)
         {
-            prompt.alert(Prompt.Level.ERROR, "SoundBot", ex + "\nPlease make sure you are "
-                    + "editing the correct config.txt file, and that you have used the "
-                    + "correct token (not the 'secret'!)\nConfig Location: " + config.getConfigLocation());
+            prompt.alert(Prompt.Level.ERROR, "SoundBot", ex + "\nPor favor asegurate de estar "
+                    + "editando el archivo config.txt correcto, y que hayas usado el "
+                    + "token correcto (no el 'secret'!)\nUbicacion del config: " + config.getConfigLocation());
             System.exit(1);
         }
         catch(IllegalArgumentException ex)
         {
-            prompt.alert(Prompt.Level.ERROR, "SoundBot", "Some aspect of the configuration is "
-                    + "invalid: " + ex + "\nConfig Location: " + config.getConfigLocation());
+            prompt.alert(Prompt.Level.ERROR, "SoundBot", "Algun aspecto de la configuracion es "
+                    + "invalido: " + ex + "\nUbicacion del config: " + config.getConfigLocation());
             System.exit(1);
         }
         catch(ErrorResponseException ex)
         {
-            prompt.alert(Prompt.Level.ERROR, "SoundBot", ex + "\nInvalid reponse returned when "
-                    + "attempting to connect, please make sure you're connected to the internet");
+            prompt.alert(Prompt.Level.ERROR, "SoundBot", ex + "\nRespuesta invalida al intentar "
+                    + "conectar, asegurate de estar conectado a internet");
             System.exit(1);
         }
     }
