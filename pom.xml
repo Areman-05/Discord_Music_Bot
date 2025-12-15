@@ -46,13 +46,9 @@
         </dependency>
         <dependency>
             <groupId>com.jagrosh</groupId>
-            <artifactId>jda-utilities-commons</artifactId>
+            <artifactId>jda-utilities</artifactId>
             <version>3.0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jagrosh</groupId>
-            <artifactId>jda-utilities-command</artifactId>
-            <version>3.0.5</version>
+            <type>pom</type>
         </dependency>
 
         <!-- Music Dependencies -->
