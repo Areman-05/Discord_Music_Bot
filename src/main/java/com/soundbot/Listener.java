@@ -120,7 +120,7 @@ public class Listener extends ListenerAdapter
         if(guild!=null)
         {
             Logger log = LoggerFactory.getLogger("SoundBot");
-            log.info("SoundBot is running on " + jda.getGuilds().size() + " servers!");
+            log.info("SoundBot esta ejecutandose en " + jda.getGuilds().size() + " servidores!");
         }
     }
 }
