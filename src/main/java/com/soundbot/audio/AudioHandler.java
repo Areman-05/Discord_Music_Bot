@@ -209,13 +209,15 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) 
     {
-        LoggerFactory.getLogger(getClass()).warn("Track exception: " + exception.getMessage());
+        String msg = exception != null ? exception.getMessage() : "Excepcion desconocida";
+        LoggerFactory.getLogger(getClass()).warn("Excepcion en track: " + msg);
     }
     
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) 
     {
-        LoggerFactory.getLogger(getClass()).warn("Track stuck: " + track.getInfo().title);
+        String title = track != null && track.getInfo() != null ? track.getInfo().title : "track desconocido";
+        LoggerFactory.getLogger(getClass()).warn("Track atascado: " + title);
     }
     
     // AudioSendHandler implementation
