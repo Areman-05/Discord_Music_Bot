@@ -62,45 +62,64 @@ public class TransformativeAudioSourceManager extends YoutubeAudioSourceManager
     @Override
     public AudioItem loadItem(AudioPlayerManager apm, AudioReference ar)
     {
-        if(ar.identifier == null || !ar.identifier.matches(regex))
+        if(ar == null || ar.identifier == null || regex == null || !ar.identifier.matches(regex))
             return null;
         try
         {
             String url = ar.identifier.replaceAll(regex, replacement);
+            if(url == null || url.isEmpty())
+                return null;
             Document doc = Jsoup.connect(url).get();
+            if(doc == null || selector == null)
+                return null;
             var element = doc.selectFirst(selector);
             if(element == null)
                 return null;
             String value = element.ownText();
+            if(value == null || format == null)
+                return null;
             String formattedValue = String.format(format, value);
             return super.loadItem(apm, new AudioReference(formattedValue, null));
         }
         catch (PatternSyntaxException ex)
         {
-            log.info(String.format("Invalid pattern syntax '%s' in source '%s'", regex, name));
+            log.info(String.format("Sintaxis de patron invalida '%s' en fuente '%s'", regex, name));
         }
         catch (IOException ex)
         {
-            log.warn(String.format("Failed to resolve URL in source '%s': ", name), ex);
+            log.warn(String.format("Error al resolver URL en fuente '%s': ", name), ex);
         }
         catch (Exception ex)
         {
-            log.warn(String.format("Exception in source '%s'", name), ex);
+            log.warn(String.format("Excepcion en fuente '%s'", name), ex);
         }
         return null;
     }
     
     public static List<TransformativeAudioSourceManager> createTransforms(Config transforms)
     {
+        if(transforms == null)
+            return Collections.emptyList();
         try
         {
             return transforms.root().entrySet().stream()
-                    .map(e -> new TransformativeAudioSourceManager(e.getKey(), transforms.getConfig(e.getKey())))
+                    .map(e -> {
+                        try
+                        {
+                            return new TransformativeAudioSourceManager(e.getKey(), transforms.getConfig(e.getKey()));
+                        }
+                        catch(Exception ex)
+                        {
+                            log.warn("Error al crear transformacion para " + e.getKey(), ex);
+                            return null;
+                        }
+                    })
+                    .filter(t -> t != null)
                     .collect(Collectors.toList());
         }
         catch (Exception ex)
         {
-            log.warn("Invalid transform ", ex);
+            log.warn("Transformacion invalida ", ex);
             return Collections.emptyList();
         }
     }
