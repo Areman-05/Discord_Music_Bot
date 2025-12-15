@@ -147,20 +147,23 @@ public class PlaylistLoader
         
         public void loadTracks(com.soundbot.audio.PlayerManager manager, java.util.function.Consumer<com.sedmelluq.discord.lavaplayer.track.AudioTrack> consumer, Runnable callback)
         {
-            if(items.isEmpty())
+            if(manager == null || items == null || items.isEmpty())
             {
-                callback.run();
+                if(callback != null) callback.run();
                 return;
             }
             manager.loadItemOrdered(manager, items.get(0), new com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler() {
                 private int index = 0;
                 @Override
                 public void trackLoaded(com.sedmelluq.discord.lavaplayer.track.AudioTrack track) {
-                    tracks.add(track);
-                    consumer.accept(track);
+                    if(track != null)
+                    {
+                        tracks.add(track);
+                        if(consumer != null) consumer.accept(track);
+                    }
                     if(++index < items.size())
                         manager.loadItemOrdered(manager, items.get(index), this);
-                    else
+                    else if(callback != null)
                         callback.run();
                 }
                 @Override
@@ -174,21 +177,21 @@ public class PlaylistLoader
                         });
                     if(++index < items.size())
                         manager.loadItemOrdered(manager, items.get(index), this);
-                    else
+                    else if(callback != null)
                         callback.run();
                 }
                 @Override
                 public void noMatches() {
                     if(++index < items.size())
                         manager.loadItemOrdered(manager, items.get(index), this);
-                    else
+                    else if(callback != null)
                         callback.run();
                 }
                 @Override
                 public void loadFailed(com.sedmelluq.discord.lavaplayer.tools.FriendlyException exception) {
                     if(++index < items.size())
                         manager.loadItemOrdered(manager, items.get(index), this);
-                    else
+                    else if(callback != null)
                         callback.run();
                 }
             });
