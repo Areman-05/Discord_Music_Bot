@@ -117,8 +117,10 @@ public class Bot
     
     public void resetGame()
     {
-        if(jda == null) return;
-        Activity game = config.getGame()==null || (config.getGame() != null && config.getGame().getName().equalsIgnoreCase("none")) ? null : config.getGame();
+        if(jda == null || config == null) return;
+        Activity game = null;
+        if(config.getGame() != null && !config.getGame().getName().equalsIgnoreCase("none"))
+            game = config.getGame();
         if(jda.getPresence() != null && !Objects.equals(jda.getPresence().getActivity(), game))
             jda.getPresence().setActivity(game);
     }
@@ -128,17 +130,22 @@ public class Bot
         if(shuttingDown)
             return;
         shuttingDown = true;
-        threadpool.shutdownNow();
+        if(threadpool != null)
+            threadpool.shutdownNow();
         if(jda != null && jda.getStatus()!=JDA.Status.SHUTTING_DOWN)
         {
             jda.getGuilds().stream().forEach(g -> 
             {
-                g.getAudioManager().closeAudioConnection();
-                AudioHandler ah = (AudioHandler)g.getAudioManager().getSendingHandler();
-                if(ah!=null)
+                if(g != null && g.getAudioManager() != null)
                 {
-                    ah.stopAndClear();
-                    ah.getPlayer().destroy();
+                    g.getAudioManager().closeAudioConnection();
+                    AudioHandler ah = (AudioHandler)g.getAudioManager().getSendingHandler();
+                    if(ah!=null)
+                    {
+                        ah.stopAndClear();
+                        if(ah.getPlayer() != null)
+                            ah.getPlayer().destroy();
+                    }
                 }
             });
             jda.shutdown();
