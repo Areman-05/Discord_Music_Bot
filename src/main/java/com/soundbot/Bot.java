@@ -118,7 +118,8 @@ public class Bot
     
     public void resetGame()
     {
-        Activity game = config.getGame()==null || config.getGame().getName().equalsIgnoreCase("none") ? null : config.getGame();
+        if(jda == null) return;
+        Activity game = config.getGame()==null || (config.getGame() != null && config.getGame().getName().equalsIgnoreCase("none")) ? null : config.getGame();
         if(!Objects.equals(jda.getPresence().getActivity(), game))
             jda.getPresence().setActivity(game);
     }
