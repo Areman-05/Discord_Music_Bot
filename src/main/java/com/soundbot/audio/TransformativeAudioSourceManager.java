@@ -41,7 +41,11 @@ public class TransformativeAudioSourceManager extends YoutubeAudioSourceManager
     
     public TransformativeAudioSourceManager(String name, Config object)
     {
-        this(name, object.getString("regex"), object.getString("replacement"), object.getString("selector"), object.getString("format"));
+        this(name, 
+             object.hasPath("regex") ? object.getString("regex") : null,
+             object.hasPath("replacement") ? object.getString("replacement") : null,
+             object.hasPath("selector") ? object.getString("selector") : null,
+             object.hasPath("format") ? object.getString("format") : null);
     }
     
     public TransformativeAudioSourceManager(String name, String regex, String replacement, String selector, String format)
