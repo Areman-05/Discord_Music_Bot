@@ -37,5 +37,19 @@ SoundBot soporta todas las fuentes y formatos soportados por [lavaplayer](https:
 ## Configuracion
 Por favor consulta la pagina de configuracion para ejecutar este bot tu mismo!
 
+## Requisitos
+  * Java 11 o superior
+  * Token de bot de Discord
+  * Permisos necesarios en el servidor de Discord
+
+## Instalacion
+1. Descarga el proyecto
+2. Configura el archivo `config.txt` con tu token de bot
+3. Compila el proyecto con Maven: `mvn clean package`
+4. Ejecuta el bot: `java -jar target/SoundBot-All.jar`
+
 ## Preguntas/Sugerencias/Reportes de Bugs
 Si tienes una pregunta, necesitas ayuda para solucionar problemas, o quieres proponer una nueva caracteristica, por favor inicia una Discusion. Si te gustaria sugerir una caracteristica o reportar un bug reproducible, por favor abre un Issue en este repositorio.
+
+## Licencia
+Este proyecto esta licenciado bajo la Licencia Apache 2.0 - ver el archivo LICENSE para mas detalles.
