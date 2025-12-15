@@ -42,40 +42,60 @@ public class SettingsManager implements GuildSettingsManager<Settings>
         this.settings = new HashMap<>();
 
         try {
-            JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath(SETTINGS_FILE))));
+            Path settingsPath = OtherUtil.getPath(SETTINGS_FILE);
+            if(!Files.exists(settingsPath))
+            {
+                LOG.info("serversettings.json se creara en " + settingsPath.toAbsolutePath());
+                Files.write(settingsPath, new JSONObject().toString(4).getBytes());
+                return;
+            }
+            byte[] fileBytes = Files.readAllBytes(settingsPath);
+            if(fileBytes == null || fileBytes.length == 0)
+            {
+                Files.write(settingsPath, new JSONObject().toString(4).getBytes());
+                return;
+            }
+            JSONObject loadedSettings = new JSONObject(new String(fileBytes));
             loadedSettings.keySet().forEach((id) -> {
-                JSONObject o = loadedSettings.getJSONObject(id);
+                try
+                {
+                    JSONObject o = loadedSettings.getJSONObject(id);
+                    if(o == null) return;
 
-                // Legacy version support: On versions 0.3.3 and older, the repeat mode was represented as a boolean.
-                if (!o.has("repeat_mode") && o.has("repeat") && o.getBoolean("repeat"))
-                    o.put("repeat_mode", RepeatMode.ALL);
+                    // Legacy version support: On versions 0.3.3 and older, the repeat mode was represented as a boolean.
+                    if (!o.has("repeat_mode") && o.has("repeat") && o.getBoolean("repeat"))
+                        o.put("repeat_mode", RepeatMode.ALL);
 
-
-                settings.put(Long.parseLong(id), new Settings(this,
-                        o.has("text_channel_id") ? o.getString("text_channel_id")            : null,
-                        o.has("voice_channel_id")? o.getString("voice_channel_id")           : null,
-                        o.has("dj_role_id")      ? o.getString("dj_role_id")                 : null,
-                        o.has("volume")          ? o.getInt("volume")                        : 100,
-                        o.has("default_playlist")? o.getString("default_playlist")           : null,
-                        o.has("repeat_mode")     ? o.getEnum(RepeatMode.class, "repeat_mode"): RepeatMode.OFF,
-                        o.has("prefix")          ? o.getString("prefix")                     : null,
-                        o.has("skip_ratio")      ? o.getDouble("skip_ratio")                 : -1,
-                        o.has("queue_type")      ? o.getEnum(QueueType.class, "queue_type")  : QueueType.FAIR));
+                    settings.put(Long.parseLong(id), new Settings(this,
+                            o.has("text_channel_id") ? o.getString("text_channel_id")            : null,
+                            o.has("voice_channel_id")? o.getString("voice_channel_id")           : null,
+                            o.has("dj_role_id")      ? o.getString("dj_role_id")                 : null,
+                            o.has("volume")          ? o.getInt("volume")                        : 100,
+                            o.has("default_playlist")? o.getString("default_playlist")           : null,
+                            o.has("repeat_mode")     ? o.getEnum(RepeatMode.class, "repeat_mode"): RepeatMode.OFF,
+                            o.has("prefix")          ? o.getString("prefix")                     : null,
+                            o.has("skip_ratio")      ? o.getDouble("skip_ratio")                 : -1,
+                            o.has("queue_type")      ? o.getEnum(QueueType.class, "queue_type")  : QueueType.FAIR));
+                }
+                catch(Exception ex)
+                {
+                    LOG.warn("Error al cargar configuracion para servidor " + id + ": " + ex.getMessage());
+                }
             });
         } catch (NoSuchFileException e) {
             // create an empty json file
             try {
-                LOG.info("serversettings.json will be created in " + OtherUtil.getPath("serversettings.json").toAbsolutePath());
+                LOG.info("serversettings.json se creara en " + OtherUtil.getPath("serversettings.json").toAbsolutePath());
                 Files.write(OtherUtil.getPath("serversettings.json"), new JSONObject().toString(4).getBytes());
             } catch(IOException ex) {
-                LOG.warn("Failed to create new settings file: "+ex);
+                LOG.warn("Error al crear nuevo archivo de configuracion: "+ex);
             }
             return;
         } catch(IOException | JSONException e) {
-            LOG.warn("Failed to load server settings: "+e);
+            LOG.warn("Error al cargar configuraciones del servidor: "+e);
         }
 
-        LOG.info("serversettings.json loaded from " + OtherUtil.getPath("serversettings.json").toAbsolutePath());
+        LOG.info("serversettings.json cargado desde " + OtherUtil.getPath("serversettings.json").toAbsolutePath());
     }
 
     /**
@@ -87,6 +107,8 @@ public class SettingsManager implements GuildSettingsManager<Settings>
     @Override
     public Settings getSettings(Guild guild)
     {
+        if(guild == null)
+            return createDefaultSettings();
         return getSettings(guild.getIdLong());
     }
 
@@ -129,7 +151,7 @@ public class SettingsManager implements GuildSettingsManager<Settings>
         try {
             Files.write(OtherUtil.getPath(SETTINGS_FILE), obj.toString(4).getBytes());
         } catch(IOException ex){
-            LOG.warn("Failed to write to file: "+ex);
+            LOG.warn("Error al escribir en el archivo: "+ex);
         }
     }
 }
