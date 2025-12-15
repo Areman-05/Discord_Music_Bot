@@ -47,24 +47,35 @@ public class PlayerManager extends DefaultAudioPlayerManager
     
     public void init()
     {
-        TransformativeAudioSourceManager.createTransforms(bot.getConfig().getTransforms()).forEach(t -> registerSourceManager(t));
+        if(bot == null || bot.getConfig() == null)
+            return;
+        try
+        {
+            TransformativeAudioSourceManager.createTransforms(bot.getConfig().getTransforms()).forEach(t -> {
+                if(t != null) registerSourceManager(t);
+            });
 
-        YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true);
-        yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
-        registerSourceManager(yt);
+            YoutubeAudioSourceManager yt = new YoutubeAudioSourceManager(true);
+            yt.setPlaylistPageCount(bot.getConfig().getMaxYTPlaylistPages());
+            registerSourceManager(yt);
 
-        registerSourceManager(SoundCloudAudioSourceManager.createDefault());
-        registerSourceManager(new BandcampAudioSourceManager());
-        registerSourceManager(new VimeoAudioSourceManager());
-        registerSourceManager(new TwitchStreamAudioSourceManager());
-        registerSourceManager(new BeamAudioSourceManager());
-        registerSourceManager(new GetyarnAudioSourceManager());
-        registerSourceManager(new NicoAudioSourceManager());
-        registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
+            registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+            registerSourceManager(new BandcampAudioSourceManager());
+            registerSourceManager(new VimeoAudioSourceManager());
+            registerSourceManager(new TwitchStreamAudioSourceManager());
+            registerSourceManager(new BeamAudioSourceManager());
+            registerSourceManager(new GetyarnAudioSourceManager());
+            registerSourceManager(new NicoAudioSourceManager());
+            registerSourceManager(new HttpAudioSourceManager(MediaContainerRegistry.DEFAULT_REGISTRY));
 
-        AudioSourceManagers.registerLocalSource(this);
+            AudioSourceManagers.registerLocalSource(this);
 
-        DuncteBotSources.registerAll(this, "en-US");
+            DuncteBotSources.registerAll(this, "en-US");
+        }
+        catch(Exception ex)
+        {
+            // Log error but continue
+        }
     }
     
     public Bot getBot()
@@ -74,7 +85,7 @@ public class PlayerManager extends DefaultAudioPlayerManager
     
     public boolean hasHandler(Guild guild)
     {
-        return guild.getAudioManager().getSendingHandler()!=null;
+        return guild != null && guild.getAudioManager() != null && guild.getAudioManager().getSendingHandler()!=null;
     }
     
     public AudioHandler setUpHandler(Guild guild)
