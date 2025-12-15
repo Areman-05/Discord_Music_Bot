@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.exceptions.RateLimitedException;
 
 /**
  *
@@ -127,7 +126,7 @@ public class NowplayingHandler
     {
         if(bot.getConfig().getSongInStatus() && bot.getJDA() != null)
         {
-            if(track!=null && bot.getJDA().getGuilds().stream()
+            if(track!=null && track.getInfo() != null && track.getInfo().title != null && bot.getJDA().getGuilds().stream()
                 .filter(g -> g != null && g.getSelfMember() != null && g.getSelfMember().getVoiceState() != null && g.getSelfMember().getVoiceState().inVoiceChannel())
                 .count()<=1)
             {
@@ -167,7 +166,7 @@ public class NowplayingHandler
         {
             tc.getManager().setTopic(shorter).queue();
         } 
-        catch(PermissionException | RateLimitedException ignored) {}
+        catch(PermissionException ignored) {}
     }
 }
 
