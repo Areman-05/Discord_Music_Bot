@@ -288,10 +288,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 return getNoMusicPlaying(jda);
             MessageBuilder mb = new MessageBuilder();
             String channelName = "canal desconocido";
-            if(guild.getSelfMember().getVoiceState() != null 
-                && guild.getSelfMember().getVoiceState().getChannel() != null)
+            var voiceState = guild.getSelfMember().getVoiceState();
+            if(voiceState != null)
             {
-                channelName = guild.getSelfMember().getVoiceState().getChannel().getName();
+                var channel = voiceState.getChannel();
+                if(channel != null)
+                    channelName = channel.getName();
             }
             String successEmoji = manager.getBot().getConfig() != null ? manager.getBot().getConfig().getSuccess() : "🎶";
             mb.append(FormatUtil.filter(successEmoji+" **Reproduciendo en "+channelName+"...**"));
@@ -330,7 +332,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 eb.setFooter(time, null);
             }
 
-            return mb.setEmbed(eb.build()).build();
+            return mb.setEmbeds(eb.build()).build();
         }
         else return getNoMusicPlaying(jda);
     }
@@ -357,7 +359,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 eb.setColor(guild.getSelfMember().getColor());
             return new MessageBuilder()
             .setContent(FormatUtil.filter(successEmoji+" **No hay musica reproduciendose**"))
-            .setEmbed(eb.build())
+            .setEmbeds(eb.build())
             .build();
     }
 }
