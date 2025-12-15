@@ -168,12 +168,23 @@ public class PlaylistLoader
                 }
                 @Override
                 public void playlistLoaded(com.sedmelluq.discord.lavaplayer.track.AudioPlaylist playlist) {
+                    if(playlist == null)
+                    {
+                        if(++index < items.size())
+                            manager.loadItemOrdered(manager, items.get(index), this);
+                        else if(callback != null)
+                            callback.run();
+                        return;
+                    }
                     if(playlist.getSelectedTrack() != null)
                         trackLoaded(playlist.getSelectedTrack());
-                    else if(!playlist.getTracks().isEmpty())
+                    else if(playlist.getTracks() != null && !playlist.getTracks().isEmpty())
                         playlist.getTracks().forEach(track -> {
-                            tracks.add(track);
-                            consumer.accept(track);
+                            if(track != null)
+                            {
+                                tracks.add(track);
+                                if(consumer != null) consumer.accept(track);
+                            }
                         });
                     if(++index < items.size())
                         manager.loadItemOrdered(manager, items.get(index), this);
