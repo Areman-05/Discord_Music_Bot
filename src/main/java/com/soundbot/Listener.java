@@ -51,7 +51,7 @@ public class Listener extends ListenerAdapter
         if(event.getJDA().getGuildCache().isEmpty())
         {
             Logger log = LoggerFactory.getLogger("SoundBot");
-            log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
+            log.warn("Este bot no esta en ningun servidor! Usa el siguiente enlace para agregar el bot a tus servidores!");
             String inviteUrl = event.getJDA().getInviteUrl(SoundBot.RECOMMENDED_PERMS);
             if(inviteUrl != null)
                 log.warn(inviteUrl);
@@ -63,9 +63,12 @@ public class Listener extends ListenerAdapter
             {
                 String defpl = bot.getSettingsManager().getSettings(guild).getDefaultPlaylist();
                 VoiceChannel vc = bot.getSettingsManager().getSettings(guild).getVoiceChannel(guild);
-                if(defpl!=null && vc!=null && bot.getPlayerManager().setUpHandler(guild).playFromDefault())
+                if(defpl!=null && vc!=null)
                 {
-                    guild.getAudioManager().openAudioConnection(vc);
+                    if(bot.getPlayerManager().setUpHandler(guild).playFromDefault())
+                    {
+                        guild.getAudioManager().openAudioConnection(vc);
+                    }
                 }
             }
             catch(Exception ignore) {}
@@ -76,13 +79,19 @@ public class Listener extends ListenerAdapter
             {
                 try
                 {
-                    User owner = bot.getJDA().retrieveUserById(bot.getConfig().getOwnerId()).complete();
-                    String currentVersion = OtherUtil.getCurrentVersion();
-                    String latestVersion = OtherUtil.getLatestVersion();
-                    if(latestVersion!=null && !currentVersion.equalsIgnoreCase(latestVersion))
+                    if(bot.getJDA() != null)
                     {
-                        String msg = String.format(OtherUtil.NEW_VERSION_AVAILABLE, currentVersion, latestVersion);
-                        owner.openPrivateChannel().queue(pc -> pc.sendMessage(msg).queue());
+                        User owner = bot.getJDA().retrieveUserById(bot.getConfig().getOwnerId()).complete();
+                        if(owner != null)
+                        {
+                            String currentVersion = OtherUtil.getCurrentVersion();
+                            String latestVersion = OtherUtil.getLatestVersion();
+                            if(latestVersion!=null && !currentVersion.equalsIgnoreCase(latestVersion))
+                            {
+                                String msg = String.format(OtherUtil.NEW_VERSION_AVAILABLE, currentVersion, latestVersion);
+                                owner.openPrivateChannel().queue(pc -> pc.sendMessage(msg).queue());
+                            }
+                        }
                     }
                 }
                 catch(Exception ignored) {} // ignored
@@ -116,12 +125,9 @@ public class Listener extends ListenerAdapter
     
     private void credit(JDA jda)
     {
-        Guild guild = jda.getGuildById(147698382092238848L);
-        if(guild!=null)
-        {
-            Logger log = LoggerFactory.getLogger("SoundBot");
-            log.info("SoundBot esta ejecutandose en " + jda.getGuilds().size() + " servidores!");
-        }
+        if(jda == null) return;
+        Logger log = LoggerFactory.getLogger("SoundBot");
+        log.info("SoundBot esta ejecutandose en " + jda.getGuilds().size() + " servidores!");
     }
 }
 
