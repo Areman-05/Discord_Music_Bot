@@ -56,16 +56,26 @@ public class OtherUtil
      */
     public static Path getPath(String path)
     {
+        if(path == null || path.isEmpty())
+            return Paths.get(".");
         Path result = Paths.get(path);
         // special logic to prevent trying to access system32
-        if(result.toAbsolutePath().toString().toLowerCase().startsWith(WINDOWS_INVALID_PATH))
+        try
         {
-            try
+            String absPath = result.toAbsolutePath().toString().toLowerCase();
+            if(absPath.startsWith(WINDOWS_INVALID_PATH))
             {
-                result = Paths.get(new File(SoundBot.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getPath() + File.separator + path);
+                try
+                {
+                    File jarFile = new File(SoundBot.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                    File parentDir = jarFile.getParentFile();
+                    if(parentDir != null)
+                        result = Paths.get(parentDir.getPath() + File.separator + path);
+                }
+                catch(URISyntaxException | NullPointerException ignored) {}
             }
-            catch(URISyntaxException ignored) {}
         }
+        catch(Exception ignored) {}
         return result;
     }
     
@@ -78,13 +88,21 @@ public class OtherUtil
      */
     public static String loadResource(Object clazz, String name)
     {
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(clazz.getClass().getResourceAsStream(name))))
+        if(clazz == null || name == null || name.isEmpty())
+            return null;
+        try
         {
-            StringBuilder sb = new StringBuilder();
-            reader.lines().forEach(line -> sb.append("\r\n").append(line));
-            return sb.toString().trim();
+            InputStream stream = clazz.getClass().getResourceAsStream(name);
+            if(stream == null)
+                return null;
+            try(BufferedReader reader = new BufferedReader(new InputStreamReader(stream)))
+            {
+                StringBuilder sb = new StringBuilder();
+                reader.lines().forEach(line -> sb.append("\r\n").append(line));
+                return sb.toString().trim();
+            }
         }
-        catch(IOException ignored)
+        catch(IOException | NullPointerException ignored)
         {
             return null;
         }
