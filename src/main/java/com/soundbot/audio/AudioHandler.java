@@ -116,7 +116,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     
     public boolean isMusicPlaying(JDA jda)
     {
-        return guild(jda).getSelfMember().getVoiceState().inVoiceChannel() && audioPlayer.getPlayingTrack()!=null;
+        Guild g = guild(jda);
+        if(g == null || g.getSelfMember() == null || g.getSelfMember().getVoiceState() == null)
+            return false;
+        return g.getSelfMember().getVoiceState().inVoiceChannel() && audioPlayer.getPlayingTrack()!=null;
     }
     
     public Set<String> getVotes()
@@ -248,7 +251,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             Guild guild = guild(jda);
             AudioTrack track = audioPlayer.getPlayingTrack();
             MessageBuilder mb = new MessageBuilder();
-            mb.append(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **Now Playing in "+guild.getSelfMember().getVoiceState().getChannel().getName()+"...**"));
+            String channelName = "canal desconocido";
+            if(guild != null && guild.getSelfMember() != null && guild.getSelfMember().getVoiceState() != null 
+                && guild.getSelfMember().getVoiceState().getChannel() != null)
+            {
+                channelName = guild.getSelfMember().getVoiceState().getChannel().getName();
+            }
+            mb.append(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **Reproduciendo en "+channelName+"...**"));
             EmbedBuilder eb = new EmbedBuilder();
             eb.setColor(guild.getSelfMember().getColor());
             RequestMetadata rm = getRequestMetadata();
@@ -276,7 +285,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 eb.setFooter(time, null);
             }
 
-            return mb.setEmbed(eb.build()).build();
+            return mb.setEmbeds(eb.build()).build();
         }
         else return getNoMusicPlaying(jda);
     }
@@ -285,9 +294,9 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     {
         Guild guild = guild(jda);
         return new MessageBuilder()
-            .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No music playing**"))
-            .setEmbed(new EmbedBuilder()
-                .setTitle("No music playing")
+            .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No hay musica reproduciendose**"))
+            .setEmbeds(new EmbedBuilder()
+                .setTitle("No hay musica reproduciendose")
                 .setDescription(FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(manager.getBot().getSettingsManager().getSettings(guild).getVolume()))
                 .setColor(guild.getSelfMember().getColor())
                 .build()).build();
