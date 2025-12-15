@@ -112,9 +112,9 @@ public class SoundBot
             
             if(!"@mention".equals(config.getPrefix()))
             {
-                LOG.info("SoundBot", "You currently have a custom prefix set. "
-                        + "If your prefix is not working, make sure that the 'MESSAGE CONTENT INTENT' is Enabled "
-                        + "on https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot");
+                LOG.info("Tienes un prefijo personalizado configurado. "
+                        + "Si tu prefijo no funciona, asegurate de que el 'MESSAGE CONTENT INTENT' este habilitado "
+                        + "en https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot");
             }
         }
         catch (LoginException ex)
