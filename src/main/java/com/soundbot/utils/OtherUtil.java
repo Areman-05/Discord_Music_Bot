@@ -142,16 +142,29 @@ public class OtherUtil
             return null;
         String lower = game.toLowerCase();
         if(lower.startsWith("playing"))
-            return Activity.playing(makeNonEmpty(game.substring(7).trim()));
+        {
+            String content = game.length() > 7 ? game.substring(7).trim() : "";
+            return Activity.playing(makeNonEmpty(content));
+        }
         if(lower.startsWith("listening to"))
-            return Activity.listening(makeNonEmpty(game.substring(12).trim()));
+        {
+            String content = game.length() > 12 ? game.substring(12).trim() : "";
+            return Activity.listening(makeNonEmpty(content));
+        }
         if(lower.startsWith("listening"))
-            return Activity.listening(makeNonEmpty(game.substring(9).trim()));
+        {
+            String content = game.length() > 9 ? game.substring(9).trim() : "";
+            return Activity.listening(makeNonEmpty(content));
+        }
         if(lower.startsWith("watching"))
-            return Activity.watching(makeNonEmpty(game.substring(8).trim()));
+        {
+            String content = game.length() > 8 ? game.substring(8).trim() : "";
+            return Activity.watching(makeNonEmpty(content));
+        }
         if(lower.startsWith("streaming"))
         {
-            String[] parts = game.substring(9).trim().split("\\s+", 2);
+            String content = game.length() > 9 ? game.substring(9).trim() : "";
+            String[] parts = content.split("\\s+", 2);
             if(parts.length == 2)
             {
                 return Activity.streaming(makeNonEmpty(parts[1]), "https://twitch.tv/"+parts[0]);
