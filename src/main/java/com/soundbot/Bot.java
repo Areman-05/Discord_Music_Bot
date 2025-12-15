@@ -22,7 +22,6 @@ import com.soundbot.audio.AloneInVoiceHandler;
 import com.soundbot.audio.AudioHandler;
 import com.soundbot.audio.NowplayingHandler;
 import com.soundbot.audio.PlayerManager;
-import com.soundbot.gui.GUI;
 import com.soundbot.playlist.PlaylistLoader;
 import com.soundbot.settings.SettingsManager;
 import java.util.Objects;
@@ -47,7 +46,6 @@ public class Bot
     
     private boolean shuttingDown = false;
     private JDA jda;
-    private GUI gui;
     
     public Bot(EventWaiter waiter, BotConfig config, SettingsManager settings)
     {
@@ -111,6 +109,7 @@ public class Bot
     
     public void closeAudioConnection(long guildId)
     {
+        if(jda == null) return;
         Guild guild = jda.getGuildById(guildId);
         if(guild!=null)
             threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
@@ -120,7 +119,7 @@ public class Bot
     {
         if(jda == null) return;
         Activity game = config.getGame()==null || (config.getGame() != null && config.getGame().getName().equalsIgnoreCase("none")) ? null : config.getGame();
-        if(!Objects.equals(jda.getPresence().getActivity(), game))
+        if(jda.getPresence() != null && !Objects.equals(jda.getPresence().getActivity(), game))
             jda.getPresence().setActivity(game);
     }
 
@@ -130,7 +129,7 @@ public class Bot
             return;
         shuttingDown = true;
         threadpool.shutdownNow();
-        if(jda.getStatus()!=JDA.Status.SHUTTING_DOWN)
+        if(jda != null && jda.getStatus()!=JDA.Status.SHUTTING_DOWN)
         {
             jda.getGuilds().stream().forEach(g -> 
             {
@@ -144,19 +143,12 @@ public class Bot
             });
             jda.shutdown();
         }
-        if(gui!=null)
-            gui.dispose();
         System.exit(0);
     }
 
     public void setJDA(JDA jda)
     {
         this.jda = jda;
-    }
-    
-    public void setGUI(GUI gui)
-    {
-        this.gui = gui;
     }
 }
 

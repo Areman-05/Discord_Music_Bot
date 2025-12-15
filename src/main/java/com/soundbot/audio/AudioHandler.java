@@ -249,10 +249,14 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         if(isMusicPlaying(jda))
         {
             Guild guild = guild(jda);
+            if(guild == null || guild.getSelfMember() == null)
+                return getNoMusicPlaying(jda);
             AudioTrack track = audioPlayer.getPlayingTrack();
+            if(track == null)
+                return getNoMusicPlaying(jda);
             MessageBuilder mb = new MessageBuilder();
             String channelName = "canal desconocido";
-            if(guild != null && guild.getSelfMember() != null && guild.getSelfMember().getVoiceState() != null 
+            if(guild.getSelfMember().getVoiceState() != null 
                 && guild.getSelfMember().getVoiceState().getChannel() != null)
             {
                 channelName = guild.getSelfMember().getVoiceState().getChannel().getName();
@@ -285,17 +289,21 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
                 eb.setFooter(time, null);
             }
 
-            return mb.setEmbeds(eb.build()).build();
+            return mb.setEmbed(eb.build()).build();
         }
         else return getNoMusicPlaying(jda);
     }
     
     public Message getNoMusicPlaying(JDA jda)
     {
-        Guild guild = guild(jda);
-        return new MessageBuilder()
+            Guild guild = guild(jda);
+            if(guild == null || guild.getSelfMember() == null)
+                return new MessageBuilder()
+                    .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No hay musica reproduciendose**"))
+                    .build();
+            return new MessageBuilder()
             .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+" **No hay musica reproduciendose**"))
-            .setEmbeds(new EmbedBuilder()
+            .setEmbed(new EmbedBuilder()
                 .setTitle("No hay musica reproduciendose")
                 .setDescription(FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(manager.getBot().getSettingsManager().getSettings(guild).getVolume()))
                 .setColor(guild.getSelfMember().getColor())
