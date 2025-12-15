@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,13 +46,15 @@ public class Listener extends ListenerAdapter
     }
     
     @Override
-    public void onReady(ReadyEvent event) 
+    public void onReady(@NotNull ReadyEvent event) 
     {
         if(event.getJDA().getGuildCache().isEmpty())
         {
             Logger log = LoggerFactory.getLogger("SoundBot");
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
-            log.warn(event.getJDA().getInviteUrl(SoundBot.RECOMMENDED_PERMS));
+            String inviteUrl = event.getJDA().getInviteUrl(SoundBot.RECOMMENDED_PERMS);
+            if(inviteUrl != null)
+                log.warn(inviteUrl);
         }
         credit(event.getJDA());
         event.getJDA().getGuilds().forEach((guild) -> 
@@ -88,7 +91,7 @@ public class Listener extends ListenerAdapter
     }
     
     @Override
-    public void onGuildMessageDelete(GuildMessageDeleteEvent event) 
+    public void onGuildMessageDelete(@Nonnull GuildMessageDeleteEvent event) 
     {
         bot.getNowplayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
     }
@@ -100,13 +103,13 @@ public class Listener extends ListenerAdapter
     }
     
     @Override
-    public void onGuildJoin(GuildJoinEvent event)
+    public void onGuildJoin(@Nonnull GuildJoinEvent event)
     {
         credit(event.getJDA());
     }
     
     @Override
-    public void onShutdown(ShutdownEvent event)
+    public void onShutdown(@Nonnull ShutdownEvent event)
     {
         bot.shutdown();
     }
