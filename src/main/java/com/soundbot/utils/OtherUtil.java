@@ -40,10 +40,10 @@ import org.json.JSONTokener;
  */
 public class OtherUtil
 {
-    public final static String NEW_VERSION_AVAILABLE = "There is a new version of SoundBot available!\n"
-                    + "Current version: %s\n"
-                    + "New Version: %s\n\n"
-                    + "Please visit the releases page to get the latest release.";
+    public final static String NEW_VERSION_AVAILABLE = "Hay una nueva version de SoundBot disponible!\n"
+                    + "Version actual: %s\n"
+                    + "Nueva Version: %s\n\n"
+                    + "Por favor visita la pagina de releases para obtener la ultima version.";
     private final static String WINDOWS_INVALID_PATH = "c:\\windows\\system32\\";
     
     /**
@@ -189,26 +189,33 @@ public class OtherUtil
     {
         try
         {
-            Response response = new OkHttpClient.Builder().build()
-                    .newCall(new Request.Builder().get().url("https://api.github.com/repos/soundbot/SoundBot/releases/latest").build())
-                    .execute();
-            ResponseBody body = response.body();
-            if(body != null)
+            OkHttpClient client = new OkHttpClient.Builder().build();
+            Request request = new Request.Builder()
+                    .get()
+                    .url("https://api.github.com/repos/soundbot/SoundBot/releases/latest")
+                    .build();
+            try(Response response = client.newCall(request).execute())
             {
-                try(Reader reader = body.charStream())
+                ResponseBody body = response.body();
+                if(body != null)
                 {
-                    JSONObject obj = new JSONObject(new JSONTokener(reader));
-                    return obj.getString("tag_name");
+                    try(Reader reader = body.charStream())
+                    {
+                        JSONObject obj = new JSONObject(new JSONTokener(reader));
+                        return obj.optString("tag_name", null);
+                    }
+                    catch(JSONException ex)
+                    {
+                        return null;
+                    }
                 }
-                finally
+                else
                 {
-                    response.close();
+                    return null;
                 }
             }
-            else
-                return null;
         }
-        catch(IOException | JSONException | NullPointerException ex)
+        catch(IOException | NullPointerException ex)
         {
             return null;
         }
@@ -220,15 +227,24 @@ public class OtherUtil
      */
     public static String getUnsupportedBotReason(JDA jda) 
     {
+        if(jda == null || jda.getSelfUser() == null)
+            return null;
         if (jda.getSelfUser().getFlags().contains(User.UserFlag.VERIFIED_BOT))
-            return "The bot is verified. Using SoundBot in a verified bot is not supported.";
+            return "El bot esta verificado. Usar SoundBot en un bot verificado no esta soportado.";
 
-        ApplicationInfo info = jda.retrieveApplicationInfo().complete();
-        if (info.isBotPublic())
-            return "\"Public Bot\" is enabled. Using SoundBot as a public bot is not supported. Please disable it in the "
-                    + "Developer Dashboard at https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot ."
-                    + "You may also need to disable all Installation Contexts at https://discord.com/developers/applications/" 
-                    + jda.getSelfUser().getId() + "/installation .";
+        try
+        {
+            ApplicationInfo info = jda.retrieveApplicationInfo().complete();
+            if (info != null && info.isBotPublic())
+                return "\"Public Bot\" esta habilitado. Usar SoundBot como bot publico no esta soportado. Por favor deshabitalo en el "
+                        + "Panel de Desarrollador en https://discord.com/developers/applications/" + jda.getSelfUser().getId() + "/bot ."
+                        + "Tambien puede que necesites deshabilitar todos los Contextos de Instalacion en https://discord.com/developers/applications/" 
+                        + jda.getSelfUser().getId() + "/installation .";
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
 
         return null;
     }
