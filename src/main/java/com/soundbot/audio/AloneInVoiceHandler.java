@@ -78,9 +78,10 @@ public class AloneInVoiceHandler
     public void onVoiceUpdate(GuildVoiceUpdateEvent event)
     {
         if(aloneTimeUntilStop <= 0) return;
+        if(bot.getJDA() == null) return;
 
         Guild guild = event.getEntity().getGuild();
-        if(!bot.getPlayerManager().hasHandler(guild)) return;
+        if(guild == null || !bot.getPlayerManager().hasHandler(guild)) return;
 
         boolean alone = isAlone(guild);
         boolean inList = aloneSince.containsKey(guild.getIdLong());
