@@ -83,6 +83,11 @@ public class NowplayingHandler
                 continue;
             }
             AudioHandler handler = (AudioHandler)guild.getAudioManager().getSendingHandler();
+            if(handler == null)
+            {
+                toRemove.add(guildId);
+                continue;
+            }
             Message msg = handler.getNowPlaying(bot.getJDA());
             if(msg==null)
             {
@@ -144,7 +149,7 @@ public class NowplayingHandler
         {
             tc.getManager().setTopic(shorter).queue();
         } 
-        catch(PermissionException | RateLimitedException ignored) {}
+        catch(PermissionException ignored) {}
     }
 }
 
