@@ -144,25 +144,34 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     {
         if(!defaultQueue.isEmpty())
         {
-            audioPlayer.playTrack(defaultQueue.remove(0));
+            AudioTrack track = defaultQueue.remove(0);
+            if(track != null)
+                audioPlayer.playTrack(track);
             return true;
         }
+        if(manager == null || manager.getBot() == null || manager.getBot().getSettingsManager() == null)
+            return false;
         Settings settings = manager.getBot().getSettingsManager().getSettings(guildId);
         if(settings==null || settings.getDefaultPlaylist()==null)
             return false;
         
+        if(manager.getBot().getPlaylistLoader() == null)
+            return false;
         Playlist pl = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());
-        if(pl==null || pl.getItems().isEmpty())
+        if(pl==null || pl.getItems()==null || pl.getItems().isEmpty())
             return false;
         pl.loadTracks(manager, (at) -> 
         {
-            if(audioPlayer.getPlayingTrack()==null)
-                audioPlayer.playTrack(at);
-            else
-                defaultQueue.add(at);
+            if(at != null)
+            {
+                if(audioPlayer.getPlayingTrack()==null)
+                    audioPlayer.playTrack(at);
+                else
+                    defaultQueue.add(at);
+            }
         }, () -> 
         {
-            if(pl.getTracks().isEmpty() && !manager.getBot().getConfig().getStay())
+            if(pl.getTracks()==null || (pl.getTracks().isEmpty() && manager.getBot().getConfig() != null && !manager.getBot().getConfig().getStay()))
                 manager.getBot().closeAudioConnection(guildId);
         });
         return true;
@@ -172,34 +181,47 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) 
     {
+        if(player == null || track == null || manager == null || manager.getBot() == null)
+            return;
+        if(manager.getBot().getSettingsManager() == null)
+            return;
         RepeatMode repeatMode = manager.getBot().getSettingsManager().getSettings(guildId).getRepeatMode();
-        if(endReason==AudioTrackEndReason.FINISHED && repeatMode != RepeatMode.OFF)
+        if(endReason==AudioTrackEndReason.FINISHED && repeatMode != RepeatMode.OFF && queue != null)
         {
-            QueuedTrack clone = new QueuedTrack(track.makeClone(), track.getUserData(RequestMetadata.class));
-            if(repeatMode == RepeatMode.ALL)
-                queue.add(clone);
-            else
-                queue.addAt(0, clone);
+            try
+            {
+                AudioTrack cloned = track.makeClone();
+                if(cloned != null)
+                {
+                    QueuedTrack clone = new QueuedTrack(cloned, track.getUserData(RequestMetadata.class));
+                    if(repeatMode == RepeatMode.ALL)
+                        queue.add(clone);
+                    else
+                        queue.addAt(0, clone);
+                }
+            }
+            catch(Exception ex)
+            {
+                // Ignore clone errors
+            }
         }
         
-        if(queue.isEmpty())
+        if(queue == null || queue.isEmpty())
         {
             if(!playFromDefault())
             {
-                manager.getBot().getNowplayingHandler().onTrackUpdate(null);
-                if(!manager.getBot().getConfig().getStay())
+                if(manager.getBot().getNowplayingHandler() != null)
+                    manager.getBot().getNowplayingHandler().onTrackUpdate(null);
+                if(manager.getBot().getConfig() != null && !manager.getBot().getConfig().getStay())
                     manager.getBot().closeAudioConnection(guildId);
                 player.setPaused(false);
             }
         }
         else
         {
-            if(!queue.isEmpty())
-            {
-                QueuedTrack qt = queue.pull();
-                if(qt != null && qt.getTrack() != null)
-                    player.playTrack(qt.getTrack());
-            }
+            QueuedTrack qt = queue.pull();
+            if(qt != null && qt.getTrack() != null)
+                player.playTrack(qt.getTrack());
         }
     }
     
