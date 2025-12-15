@@ -38,7 +38,7 @@ public class TimeUtil
      */
     public static SeekTime parseTime(String args)
     {
-        if (args.length() == 0) return null;
+        if (args == null || args.length() == 0) return null;
         String timestamp = args;
         boolean relative = false; // seek forward or backward
         boolean isSeekingBackwards = false;
@@ -48,6 +48,7 @@ public class TimeUtil
             relative = true;
             isSeekingBackwards = first == '-';
             timestamp = timestamp.substring(1);
+            if(timestamp.isEmpty()) return null;
         }
 
         long milliseconds = parseColonTime(timestamp);
@@ -65,14 +66,17 @@ public class TimeUtil
      */
     public static long parseColonTime(String timestamp)
     {
+        if(timestamp == null || timestamp.isEmpty())
+            return -1;
         String[] timestampSplitArray = timestamp.split(":+");
-        if(timestampSplitArray.length > 3 )
+        if(timestampSplitArray.length > 3 || timestampSplitArray.length == 0)
             return -1;
         double[] timeUnitArray = new double[3]; // hours, minutes, seconds
         for(int index = 0; index < timestampSplitArray.length; index++)
         {
             String unit = timestampSplitArray[index];
-            if (unit.startsWith("+") || unit.startsWith("-")) return -1;
+            if(unit == null || unit.isEmpty() || unit.startsWith("+") || unit.startsWith("-")) 
+                return -1;
             unit = unit.replace(",", ".");
             try
             {
@@ -93,24 +97,33 @@ public class TimeUtil
      */
     public static long parseUnitTime(String timestr)
     {
+        if(timestr == null || timestr.isEmpty())
+            return -1;
         timestr = timestr.replaceAll("(?i)(\\s|,|and)","")
                 .replaceAll("(?is)(-?\\d+|[a-z]+)", "$1 ")
                 .trim();
+        if(timestr.isEmpty())
+            return -1;
         String[] vals = timestr.split("\\s+");
+        if(vals.length == 0)
+            return -1;
         int time = 0;
         try
         {
             for(int j=0; j<vals.length; j+=2)
             {
+                if(j >= vals.length || vals[j] == null || vals[j].isEmpty())
+                    return -1;
                 int num = Integer.parseInt(vals[j]);
 
-                if(vals.length > j+1)
+                if(vals.length > j+1 && vals[j+1] != null)
                 {
-                    if(vals[j+1].toLowerCase().startsWith("m"))
+                    String unit = vals[j+1].toLowerCase();
+                    if(unit.startsWith("m"))
                         num*=60;
-                    else if(vals[j+1].toLowerCase().startsWith("h"))
+                    else if(unit.startsWith("h"))
                         num*=60*60;
-                    else if(vals[j+1].toLowerCase().startsWith("d"))
+                    else if(unit.startsWith("d"))
                         num*=60*60*24;
                 }
 
