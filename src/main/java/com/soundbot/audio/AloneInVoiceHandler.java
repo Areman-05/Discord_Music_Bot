@@ -94,10 +94,11 @@ public class AloneInVoiceHandler
 
     private boolean isAlone(Guild guild)
     {
+        if(guild == null || guild.getAudioManager() == null) return false;
         if(guild.getAudioManager().getConnectedChannel() == null) return false;
         return guild.getAudioManager().getConnectedChannel().getMembers().stream()
                 .noneMatch(x -> {
-                    if(x.getVoiceState() == null) return false;
+                    if(x == null || x.getVoiceState() == null || x.getUser() == null) return false;
                     return !x.getVoiceState().isDeafened()
                         && !x.getUser().isBot();
                 });
