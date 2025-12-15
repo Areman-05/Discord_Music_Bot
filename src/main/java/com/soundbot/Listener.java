@@ -18,7 +18,6 @@ package com.soundbot;
 import com.soundbot.utils.OtherUtil;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -27,7 +26,6 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +44,14 @@ public class Listener extends ListenerAdapter
     }
     
     @Override
-    public void onReady(@NotNull ReadyEvent event) 
+    public void onReady(@Nonnull ReadyEvent event) 
     {
         if(event.getJDA().getGuildCache().isEmpty())
         {
             Logger log = LoggerFactory.getLogger("SoundBot");
             log.warn("Este bot no esta en ningun servidor! Usa el siguiente enlace para agregar el bot a tus servidores!");
             String inviteUrl = event.getJDA().getInviteUrl(SoundBot.RECOMMENDED_PERMS);
-            if(inviteUrl != null)
+            if(inviteUrl != null && !inviteUrl.isEmpty())
                 log.warn(inviteUrl);
         }
         credit(event.getJDA());
@@ -109,7 +107,7 @@ public class Listener extends ListenerAdapter
     }
 
     @Override
-    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event)
+    public void onGuildVoiceUpdate(@Nonnull GuildVoiceUpdateEvent event)
     {
         bot.getAloneInVoiceHandler().onVoiceUpdate(event);
     }
