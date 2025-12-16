@@ -9,9 +9,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Nonnull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +40,7 @@ public class MusicBot extends ListenerAdapter {
     }
     
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
         
         String message = event.getMessage().getContentRaw();
@@ -83,7 +81,7 @@ public class MusicBot extends ListenerAdapter {
             return;
         }
         
-        VoiceChannel voiceChannel = member.getVoiceState().getChannel();
+        VoiceChannel voiceChannel = member.getVoiceState() != null ? member.getVoiceState().getChannel() : null;
         if (voiceChannel == null) return;
         
         Guild guild = event.getGuild();
@@ -147,7 +145,7 @@ public class MusicBot extends ListenerAdapter {
             "`!skip` - Salta canción\n" +
             "`!queue` - Muestra la cola\n" +
             "`!help` - Esta ayuda";
-        event.getChannel().sendMessage(help).queue();
+        event.getChannel().sendMessage(help != null ? help : "").queue();
     }
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
