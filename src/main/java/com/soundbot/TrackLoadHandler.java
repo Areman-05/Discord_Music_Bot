@@ -6,6 +6,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+/**
+ * Handler para manejar los resultados de carga de audio.
+ */
 public class TrackLoadHandler implements AudioLoadResultHandler {
     private final MessageReceivedEvent event;
     private final TrackScheduler scheduler;
