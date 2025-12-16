@@ -19,6 +19,7 @@ import java.util.Queue;
 
 public class MusicBot extends ListenerAdapter {
     private static final String PREFIX = "!";
+    private static final int MAX_QUEUE_DISPLAY = 10;
     
     private final AudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers;
@@ -114,12 +115,12 @@ public class MusicBot extends ListenerAdapter {
         
         int count = 0;
         for (AudioTrack track : queue) {
-            if (count++ >= 10) break;
+            if (count++ >= MAX_QUEUE_DISPLAY) break;
             sb.append(count).append(". ").append(track.getInfo().title).append("\n");
         }
         
-        if (queue.size() > 10) {
-            sb.append("... y ").append(queue.size() - 10).append(" más");
+        if (queue.size() > MAX_QUEUE_DISPLAY) {
+            sb.append("... y ").append(queue.size() - MAX_QUEUE_DISPLAY).append(" más");
         }
         
         event.getChannel().sendMessage(sb.toString()).queue();
