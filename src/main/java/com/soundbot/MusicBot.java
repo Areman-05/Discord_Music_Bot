@@ -127,13 +127,13 @@ public class MusicBot extends ListenerAdapter {
     }
     
     private void sendHelp(MessageReceivedEvent event) {
-        String help = "**Comandos disponibles:**\n" +
-            "`!play <URL/búsqueda>` - Reproduce música\n" +
-            "`!stop` - Detiene la música y limpia la cola\n" +
-            "`!skip` - Salta a la siguiente canción\n" +
-            "`!queue` - Muestra la cola de reproducción\n" +
-            "`!help` - Muestra esta ayuda";
-        event.getChannel().sendMessage(help).queue();
+        StringBuilder help = new StringBuilder("**Comandos disponibles:**\n");
+        help.append("`!play <URL/búsqueda>` - Reproduce música\n");
+        help.append("`!stop` - Detiene la música y limpia la cola\n");
+        help.append("`!skip` - Salta a la siguiente canción\n");
+        help.append("`!queue` - Muestra la cola de reproducción\n");
+        help.append("`!help` - Muestra esta ayuda");
+        event.getChannel().sendMessage(help.toString()).queue();
     }
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
