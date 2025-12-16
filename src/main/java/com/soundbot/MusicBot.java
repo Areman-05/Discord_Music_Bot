@@ -1,0 +1,168 @@
+package com.soundbot;
+
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.managers.AudioManager;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+
+public class MusicBot extends ListenerAdapter {
+    private static final Logger log = LoggerFactory.getLogger(MusicBot.class);
+    private static final String PREFIX = "!";
+    
+    private final AudioPlayerManager playerManager;
+    private final Map<Long, GuildMusicManager> musicManagers;
+    
+    public MusicBot() {
+        this.playerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerRemoteSources(playerManager);
+        this.musicManagers = new HashMap<>();
+    }
+    
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+        
+        String message = event.getMessage().getContentRaw();
+        if (!message.startsWith(PREFIX)) return;
+        
+        String command = message.substring(PREFIX.length()).split(" ")[0].toLowerCase();
+        String[] args = message.substring(PREFIX.length() + command.length()).trim().split(" ");
+        
+        switch (command) {
+            case "play":
+                playMusic(event, String.join(" ", args));
+                break;
+            case "stop":
+                stopMusic(event);
+                break;
+            case "skip":
+                skipMusic(event);
+                break;
+            case "queue":
+                showQueue(event);
+                break;
+            case "help":
+                sendHelp(event);
+                break;
+        }
+    }
+    
+    private void playMusic(MessageReceivedEvent event, String query) {
+        if (query.isEmpty()) {
+            event.getChannel().sendMessage("Uso: !play <URL o búsqueda>").queue();
+            return;
+        }
+        
+        Member member = event.getMember();
+        if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel()) {
+            event.getChannel().sendMessage("Debes estar en un canal de voz!").queue();
+            return;
+        }
+        
+        VoiceChannel voiceChannel = member.getVoiceState().getChannel();
+        if (voiceChannel == null) return;
+        
+        Guild guild = event.getGuild();
+        GuildMusicManager musicManager = getGuildMusicManager(guild);
+        
+        connectToVoiceChannel(guild, voiceChannel, musicManager);
+        
+        playerManager.loadItemOrdered(musicManager, query, new TrackLoadHandler(event, musicManager.scheduler, query));
+    }
+    
+    private void stopMusic(MessageReceivedEvent event) {
+        GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
+        musicManager.player.stopTrack();
+        musicManager.scheduler.queue.clear();
+        event.getChannel().sendMessage("Música detenida y cola limpiada.").queue();
+    }
+    
+    private void skipMusic(MessageReceivedEvent event) {
+        GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
+        if (musicManager.player.getPlayingTrack() != null) {
+            musicManager.scheduler.nextTrack();
+            event.getChannel().sendMessage("Canción saltada.").queue();
+        } else {
+            event.getChannel().sendMessage("No hay música reproduciéndose.").queue();
+        }
+    }
+    
+    private void showQueue(MessageReceivedEvent event) {
+        GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
+        Queue<AudioTrack> queue = musicManager.scheduler.queue;
+        
+        if (queue.isEmpty() && musicManager.player.getPlayingTrack() == null) {
+            event.getChannel().sendMessage("La cola está vacía.").queue();
+            return;
+        }
+        
+        StringBuilder sb = new StringBuilder("**Cola de reproducción:**\n");
+        if (musicManager.player.getPlayingTrack() != null) {
+            sb.append("▶️ ").append(musicManager.player.getPlayingTrack().getInfo().title).append("\n");
+        }
+        
+        int count = 0;
+        for (AudioTrack track : queue) {
+            if (count++ >= 10) break;
+            sb.append(count).append(". ").append(track.getInfo().title).append("\n");
+        }
+        
+        if (queue.size() > 10) {
+            sb.append("... y ").append(queue.size() - 10).append(" más");
+        }
+        
+        event.getChannel().sendMessage(sb.toString()).queue();
+    }
+    
+    private void sendHelp(MessageReceivedEvent event) {
+        String help = "**Comandos disponibles:**\n" +
+            "`!play <URL/búsqueda>` - Reproduce música\n" +
+            "`!stop` - Detiene la música y limpia la cola\n" +
+            "`!skip` - Salta a la siguiente canción\n" +
+            "`!queue` - Muestra la cola de reproducción\n" +
+            "`!help` - Muestra esta ayuda";
+        event.getChannel().sendMessage(help).queue();
+    }
+    
+    private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
+        AudioManager audioManager = guild.getAudioManager();
+        if (!audioManager.isConnected()) {
+            audioManager.setSendingHandler(musicManager.sendHandler);
+            audioManager.openAudioConnection(channel);
+        }
+    }
+    
+    private GuildMusicManager getGuildMusicManager(Guild guild) {
+        return musicManagers.computeIfAbsent(guild.getIdLong(), id -> {
+            AudioPlayer player = playerManager.createPlayer();
+            TrackScheduler scheduler = new TrackScheduler(player);
+            player.addListener(scheduler);
+            return new GuildMusicManager(player, scheduler);
+        });
+    }
+    
+    static class GuildMusicManager {
+        final AudioPlayer player;
+        final TrackScheduler scheduler;
+        final AudioPlayerSendHandler sendHandler;
+        
+        GuildMusicManager(AudioPlayer player, TrackScheduler scheduler) {
+            this.player = player;
+            this.scheduler = scheduler;
+            this.sendHandler = new AudioPlayerSendHandler(player);
+        }
+    }
+}
+
