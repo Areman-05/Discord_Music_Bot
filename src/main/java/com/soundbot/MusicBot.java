@@ -114,14 +114,15 @@ public class MusicBot extends ListenerAdapter {
             return;
         }
         
-        StringBuilder sb = new StringBuilder("**Cola de reproducción:**\n");
-        if (musicManager.player.getPlayingTrack() != null) {
-            sb.append("▶️ ").append(musicManager.player.getPlayingTrack().getInfo().title).append("\n");
+        StringBuilder sb = new StringBuilder("**Cola:**\n");
+        AudioTrack playing = musicManager.player.getPlayingTrack();
+        if (playing != null) {
+            sb.append("▶️ ").append(playing.getInfo().title).append("\n");
         }
         
         int count = 0;
         for (AudioTrack track : queue) {
-            if (count++ >= MAX_QUEUE_DISPLAY) break;
+            if (++count > MAX_QUEUE_DISPLAY) break;
             sb.append(count).append(". ").append(track.getInfo().title).append("\n");
         }
         
@@ -133,13 +134,13 @@ public class MusicBot extends ListenerAdapter {
     }
     
     private void sendHelp(MessageReceivedEvent event) {
-        StringBuilder help = new StringBuilder("**Comandos disponibles:**\n");
-        help.append("`!play <URL/búsqueda>` - Reproduce música\n");
-        help.append("`!stop` - Detiene la música y limpia la cola\n");
-        help.append("`!skip` - Salta a la siguiente canción\n");
-        help.append("`!queue` - Muestra la cola de reproducción\n");
-        help.append("`!help` - Muestra esta ayuda");
-        event.getChannel().sendMessage(help.toString()).queue();
+        String help = "**Comandos:**\n" +
+            "`!play <URL/búsqueda>` - Reproduce música\n" +
+            "`!stop` - Detiene y limpia la cola\n" +
+            "`!skip` - Salta canción\n" +
+            "`!queue` - Muestra la cola\n" +
+            "`!help` - Esta ayuda";
+        event.getChannel().sendMessage(help).queue();
     }
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
