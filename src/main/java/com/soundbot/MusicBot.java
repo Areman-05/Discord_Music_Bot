@@ -148,8 +148,6 @@ public class MusicBot extends ListenerAdapter {
     }
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
-        if (guild == null || channel == null || musicManager == null) return;
-        
         AudioManager audioManager = guild.getAudioManager();
         if (!audioManager.isConnected()) {
             audioManager.setSendingHandler(musicManager.sendHandler);
