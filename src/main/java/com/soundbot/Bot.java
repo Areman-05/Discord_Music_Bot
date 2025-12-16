@@ -160,9 +160,9 @@ public class Bot
      */
     public void closeAudioConnection(long guildId)
     {
-        if(jda == null) return;
+        if(jda == null || threadpool == null) return;
         Guild guild = jda.getGuildById(guildId);
-        if(guild!=null)
+        if(guild != null && guild.getAudioManager() != null)
             threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
     }
     
@@ -192,7 +192,7 @@ public class Bot
         shuttingDown = true;
         if(threadpool != null)
             threadpool.shutdownNow();
-        if(jda != null && jda.getStatus()!=JDA.Status.SHUTTING_DOWN)
+        if(jda != null && jda.getStatus() != JDA.Status.SHUTTING_DOWN)
         {
             jda.getGuilds().stream().forEach(g -> 
             {
