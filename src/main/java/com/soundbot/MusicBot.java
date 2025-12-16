@@ -156,8 +156,6 @@ public class MusicBot extends ListenerAdapter {
     }
     
     private GuildMusicManager getGuildMusicManager(Guild guild) {
-        if (guild == null) return null;
-        
         return musicManagers.computeIfAbsent(guild.getIdLong(), id -> {
             AudioPlayer player = playerManager.createPlayer();
             TrackScheduler scheduler = new TrackScheduler(player);
