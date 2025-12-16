@@ -76,15 +76,12 @@ public class MusicBot extends ListenerAdapter {
         }
         
         Member member = event.getMember();
-        if (member == null) {
+        if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel()) {
+            event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
             return;
         }
         
         var voiceState = member.getVoiceState();
-        if (voiceState == null || !voiceState.inVoiceChannel()) {
-            event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
-            return;
-        }
         
         VoiceChannel voiceChannel = voiceState.getChannel();
         if (voiceChannel == null) return;
