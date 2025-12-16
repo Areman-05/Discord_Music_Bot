@@ -76,12 +76,17 @@ public class MusicBot extends ListenerAdapter {
         }
         
         Member member = event.getMember();
-        if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel()) {
+        if (member == null) {
+            return;
+        }
+        
+        var voiceState = member.getVoiceState();
+        if (voiceState == null || !voiceState.inVoiceChannel()) {
             event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
             return;
         }
         
-        VoiceChannel voiceChannel = member.getVoiceState().getChannel();
+        VoiceChannel voiceChannel = voiceState.getChannel();
         if (voiceChannel == null) return;
         
         Guild guild = event.getGuild();
@@ -135,7 +140,8 @@ public class MusicBot extends ListenerAdapter {
             sb.append("... y ").append(queue.size() - MAX_QUEUE_DISPLAY).append(" más");
         }
         
-        event.getChannel().sendMessage(sb.toString()).queue();
+        String queueMessage = sb.toString();
+        event.getChannel().sendMessage(queueMessage).queue();
     }
     
     private void sendHelp(MessageReceivedEvent event) {
