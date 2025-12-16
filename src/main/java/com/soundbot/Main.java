@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
         String token = System.getenv("DISCORD_TOKEN");
         if (token == null || token.isEmpty()) {
-            log.error("No se encontró el token de Discord. Configura la variable de entorno DISCORD_TOKEN");
+            log.error("No se encontró el token. Configura la variable DISCORD_TOKEN");
             System.exit(1);
         }
         
