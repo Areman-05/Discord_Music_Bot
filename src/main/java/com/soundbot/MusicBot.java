@@ -85,11 +85,6 @@ public class MusicBot extends ListenerAdapter {
     
     private void stopMusic(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
-        if (musicManager == null) {
-            event.getChannel().sendMessage("No hay música reproduciéndose.").queue();
-            return;
-        }
-        
         musicManager.player.stopTrack();
         musicManager.scheduler.clearQueue();
         event.getChannel().sendMessage("Música detenida y cola limpiada.").queue();
