@@ -99,9 +99,17 @@ public class MusicBot extends ListenerAdapter {
     }
     
     private void stopMusic(MessageReceivedEvent event) {
-        GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
+        Guild guild = event.getGuild();
+        GuildMusicManager musicManager = getGuildMusicManager(guild);
         musicManager.player.stopTrack();
         musicManager.scheduler.clearQueue();
+        
+        // Desconectar del canal de voz también
+        AudioManager audioManager = guild.getAudioManager();
+        if (audioManager.isConnected()) {
+            audioManager.closeAudioConnection();
+        }
+        
         event.getChannel().sendMessage(MSG_STOPPED).queue();
     }
     
@@ -159,10 +167,22 @@ public class MusicBot extends ListenerAdapter {
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
         AudioManager audioManager = guild.getAudioManager();
-        if (!audioManager.isConnected()) {
-            audioManager.setSendingHandler(musicManager.sendHandler);
-            audioManager.openAudioConnection(channel);
+        
+        // Si ya está conectado, verificar si es al mismo canal
+        if (audioManager.isConnected()) {
+            VoiceChannel connectedChannel = (VoiceChannel) audioManager.getConnectedChannel();
+            if (connectedChannel == null || !connectedChannel.getId().equals(channel.getId())) {
+                // Está conectado a otro canal, desconectar primero
+                audioManager.closeAudioConnection();
+            } else {
+                // Ya está en el canal correcto
+                return;
+            }
         }
+        
+        // Conectar al canal
+        audioManager.setSendingHandler(musicManager.sendHandler);
+        audioManager.openAudioConnection(channel);
     }
     
     private GuildMusicManager getGuildMusicManager(Guild guild) {
