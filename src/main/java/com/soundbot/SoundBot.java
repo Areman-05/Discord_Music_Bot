@@ -52,7 +52,10 @@ public class SoundBot
     public final static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES};
     
     /**
-     * @param args the command line arguments
+     * Punto de entrada principal de la aplicación.
+     * 
+     * @param args Argumentos de línea de comandos. Si contiene "generate-config", 
+     *             genera un archivo de configuración por defecto.
      */
     public static void main(String[] args)
     {
@@ -67,33 +70,38 @@ public class SoundBot
         startBot();
     }
     
+    /**
+     * Inicializa y arranca el bot de Discord.
+     * Realiza las validaciones necesarias, carga la configuración
+     * y establece la conexión con Discord.
+     */
     private static void startBot()
     {
-        // create prompt to handle startup
+        // Crear prompt para manejar el inicio
         Prompt prompt = new Prompt("SoundBot");
         
-        // startup checks
+        // Verificaciones de inicio
         OtherUtil.checkVersion(prompt);
         OtherUtil.checkJavaVersion(prompt);
         
-        // load config
+        // Cargar configuración
         BotConfig config = new BotConfig(prompt);
         config.load();
         if(!config.isValid())
             return;
         LOG.info("Loaded config from " + config.getConfigLocation());
 
-        // set log level from config
+        // Establecer nivel de log desde la configuración
         ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(
                 Level.toLevel(config.getLogLevel(), Level.INFO));
         
-        // set up the listener
+        // Configurar listeners
         EventWaiter waiter = new EventWaiter();
         SettingsManager settings = new SettingsManager();
         Bot bot = new Bot(waiter, config, settings);
         CommandClient client = createCommandClient(config, settings, bot);
         
-        // attempt to log in and start
+        // Intentar iniciar sesión y arrancar
         try
         {
             JDA jda = JDABuilder.create(config.getToken(), Arrays.asList(INTENTS))
@@ -146,9 +154,17 @@ public class SoundBot
         }
     }
     
+    /**
+     * Crea y configura el cliente de comandos de Discord.
+     * 
+     * @param config Configuración del bot
+     * @param settings Manager de configuraciones por servidor
+     * @param bot Instancia del bot
+     * @return CommandClient configurado
+     */
     private static CommandClient createCommandClient(BotConfig config, SettingsManager settings, Bot bot)
     {
-        // set up the command client
+        // Configurar el cliente de comandos
         CommandClientBuilder cb = new CommandClientBuilder()
                 .setPrefix(config.getPrefix())
                 .setAlternativePrefix(config.getAltPrefix())
@@ -158,11 +174,11 @@ public class SoundBot
                 .setLinkedCacheSize(LINKED_CACHE_SIZE)
                 .setGuildSettingsManager(settings);
         
-        // set status if set in config
+        // Establecer estado si está configurado
         if(config.getStatus() != OnlineStatus.UNKNOWN)
             cb.setStatus(config.getStatus());
         
-        // set game
+        // Establecer actividad/juego
         if(config.getGame() == null)
             cb.useDefaultGame();
         else if(config.isGameNone())
