@@ -6,7 +6,6 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.VoiceState;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -81,7 +80,7 @@ public class MusicBot extends ListenerAdapter {
             return;
         }
         
-        VoiceState voiceState = member.getVoiceState();
+        net.dv8tion.jda.api.entities.VoiceState voiceState = member.getVoiceState();
         if (voiceState == null || !voiceState.inVoiceChannel()) {
             event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
             return;
