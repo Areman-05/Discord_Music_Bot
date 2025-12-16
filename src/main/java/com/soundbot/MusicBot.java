@@ -17,6 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * Bot de música simple para Discord.
+ * Maneja comandos básicos de reproducción de música.
+ */
 public class MusicBot extends ListenerAdapter {
     private static final String PREFIX = "!";
     private static final int MAX_QUEUE_DISPLAY = 10;
