@@ -72,9 +72,12 @@ public class Listener extends ListenerAdapter
                     }
                 }
             }
-            catch(Exception ignore) {}
+            catch(Exception ex)
+            {
+                LoggerFactory.getLogger(Listener.class).warn("Error al inicializar servidor: " + guild.getId(), ex);
+            }
         });
-        if(bot.getConfig().useUpdateAlerts())
+        if(bot.getConfig() != null && bot.getConfig().useUpdateAlerts())
         {
             bot.getThreadpool().scheduleWithFixedDelay(() -> 
             {
@@ -99,7 +102,10 @@ public class Listener extends ListenerAdapter
                         }
                     }
                 }
-                catch(Exception ignored) {} // ignored
+                catch(Exception ex)
+                {
+                    LoggerFactory.getLogger(Listener.class).error("Error al verificar actualizaciones", ex);
+                }
             }, 0, 24, TimeUnit.HOURS);
         }
     }
@@ -107,13 +113,15 @@ public class Listener extends ListenerAdapter
     @Override
     public void onGuildMessageDelete(@Nonnull GuildMessageDeleteEvent event) 
     {
-        bot.getNowplayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
+        if(bot.getNowplayingHandler() != null)
+            bot.getNowplayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
     }
 
     @Override
     public void onGuildVoiceUpdate(@Nonnull GuildVoiceUpdateEvent event)
     {
-        bot.getAloneInVoiceHandler().onVoiceUpdate(event);
+        if(bot.getAloneInVoiceHandler() != null)
+            bot.getAloneInVoiceHandler().onVoiceUpdate(event);
     }
     
     @Override
