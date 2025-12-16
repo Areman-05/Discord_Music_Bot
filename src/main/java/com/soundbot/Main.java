@@ -5,11 +5,13 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.security.auth.login.LoginException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Clase principal para iniciar el bot de música.
+ */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     
