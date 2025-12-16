@@ -25,6 +25,13 @@ public class MusicBot extends ListenerAdapter {
     private static final String PREFIX = "!";
     private static final int MAX_QUEUE_DISPLAY = 10;
     
+    private static final String MSG_NOT_IN_VOICE = "Debes estar en un canal de voz!";
+    private static final String MSG_USAGE_PLAY = "Uso: !play <URL o búsqueda>";
+    private static final String MSG_QUEUE_EMPTY = "La cola está vacía.";
+    private static final String MSG_NO_MUSIC = "No hay música reproduciéndose.";
+    private static final String MSG_STOPPED = "Música detenida y cola limpiada.";
+    private static final String MSG_SKIPPED = "Canción saltada.";
+    
     private final AudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers;
     
@@ -66,13 +73,13 @@ public class MusicBot extends ListenerAdapter {
     
     private void playMusic(MessageReceivedEvent event, String query) {
         if (query.isEmpty()) {
-            event.getChannel().sendMessage("Uso: !play <URL o búsqueda>").queue();
+            event.getChannel().sendMessage(MSG_USAGE_PLAY).queue();
             return;
         }
         
         Member member = event.getMember();
         if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel()) {
-            event.getChannel().sendMessage("Debes estar en un canal de voz!").queue();
+            event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
             return;
         }
         
@@ -91,18 +98,18 @@ public class MusicBot extends ListenerAdapter {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
         musicManager.player.stopTrack();
         musicManager.scheduler.clearQueue();
-        event.getChannel().sendMessage("Música detenida y cola limpiada.").queue();
+        event.getChannel().sendMessage(MSG_STOPPED).queue();
     }
     
     private void skipMusic(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
         if (musicManager.player.getPlayingTrack() == null) {
-            event.getChannel().sendMessage("No hay música reproduciéndose.").queue();
+            event.getChannel().sendMessage(MSG_NO_MUSIC).queue();
             return;
         }
         
         musicManager.scheduler.nextTrack();
-        event.getChannel().sendMessage("Canción saltada.").queue();
+        event.getChannel().sendMessage(MSG_SKIPPED).queue();
     }
     
     private void showQueue(MessageReceivedEvent event) {
@@ -110,7 +117,7 @@ public class MusicBot extends ListenerAdapter {
         Queue<AudioTrack> queue = musicManager.scheduler.getQueue();
         
         if (queue.isEmpty() && musicManager.player.getPlayingTrack() == null) {
-            event.getChannel().sendMessage("La cola está vacía.").queue();
+            event.getChannel().sendMessage(MSG_QUEUE_EMPTY).queue();
             return;
         }
         
