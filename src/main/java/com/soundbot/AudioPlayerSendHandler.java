@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.audio.AudioSendHandler;
 import java.nio.ByteBuffer;
 
 /**
- * Handler para enviar audio desde LavaPlayer a Discord.
+ * Handler simple para enviar audio desde LavaPlayer a Discord.
  */
 public class AudioPlayerSendHandler implements AudioSendHandler {
     private final AudioPlayer audioPlayer;
