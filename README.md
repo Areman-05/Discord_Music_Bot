@@ -1,57 +1,28 @@
-# SoundBot
+# Bot de Música Simple para Discord
 
-Un bot de musica para Discord multiplataforma con una interfaz limpia y facil de configurar y ejecutar.
+Un bot de música simple y fácil de usar para Discord usando Java, JDA y LavaPlayer.
 
-## Caracteristicas
-  * Facil de ejecutar (solo asegurate de tener Java instalado y ejecutalo!)
-  * Carga rapida de canciones
-  * No se necesitan claves externas (solo un token de bot de Discord)
-  * Reproduccion fluida
-  * Configuracion especifica por servidor para el rol "DJ" que puede moderar la musica
-  * Menus limpios y bonitos
-  * Soporta muchos sitios, incluyendo Youtube, Soundcloud y mas
-  * Soporta muchas radios/streams en linea
-  * Soporta archivos locales
-  * Soporte para listas de reproduccion (tanto web/youtube como locales)
+## Características
 
-## Fuentes y formatos soportados
-SoundBot soporta todas las fuentes y formatos soportados por [lavaplayer](https://github.com/sedmelluq/lavaplayer#supported-formats):
-### Fuentes
-  * YouTube
-  * SoundCloud
-  * Bandcamp
-  * Vimeo
-  * Streams de Twitch
-  * Archivos locales
-  * URLs HTTP
-### Formatos
-  * MP3
-  * FLAC
-  * WAV
-  * Matroska/WebM (codecs AAC, Opus o Vorbis)
-  * MP4/M4A (codec AAC)
-  * Streams OGG (codecs Opus, Vorbis y FLAC)
-  * Streams AAC
-  * Listas de reproduccion de streams (M3U y PLS)
+- Reproducir música desde YouTube y otras fuentes
+- Cola de reproducción simple
+- Comandos básicos: play, stop, skip, queue, help
 
-## Configuracion
-Para configurar el bot, edita el archivo `config.txt` que se genera automaticamente al ejecutar el bot por primera vez. Necesitaras:
-- Un token de bot de Discord (obtenlo en https://discord.com/developers/applications)
-- Tu ID de usuario de Discord (para ser el propietario del bot)
+## Comandos
+
+- `!play <URL o búsqueda>` - Reproduce música
+- `!stop` - Detiene la música y limpia la cola
+- `!skip` - Salta a la siguiente canción
+- `!queue` - Muestra la cola de reproducción
+- `!help` - Muestra la ayuda
+
+## Configuración
+
+1. Configura la variable de entorno `DISCORD_TOKEN` con tu token de bot de Discord
+2. Compila el proyecto con Maven: `mvn clean package`
+3. Ejecuta el JAR: `java -jar target/SoundBot-1.0.0-All.jar`
 
 ## Requisitos
-  * Java 11 o superior
-  * Token de bot de Discord
-  * Permisos necesarios en el servidor de Discord
 
-## Instalacion
-1. Descarga el proyecto
-2. Configura el archivo `config.txt` con tu token de bot
-3. Compila el proyecto con Maven: `mvn clean package`
-4. Ejecuta el bot: `java -jar target/SoundBot-All.jar`
-
-## Preguntas/Sugerencias/Reportes de Bugs
-Si tienes una pregunta, necesitas ayuda para solucionar problemas, o quieres proponer una nueva caracteristica, por favor inicia una Discusion. Si te gustaria sugerir una caracteristica o reportar un bug reproducible, por favor abre un Issue en este repositorio.
-
-## Licencia
-Este proyecto esta licenciado bajo la Licencia Apache 2.0 - ver el archivo LICENSE para mas detalles.
+- Java 11 o superior
+- Token de bot de Discord (obtén uno en https://discord.com/developers/applications)
