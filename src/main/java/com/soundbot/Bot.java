@@ -30,7 +30,9 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 
 /**
- *
+ * Clase principal que gestiona las componentes del bot de música.
+ * Contiene referencias a los managers de configuración, audio, playlists y handlers.
+ * 
  * @author SoundBot Contributors
  */
 public class Bot
@@ -47,6 +49,15 @@ public class Bot
     private boolean shuttingDown = false;
     private JDA jda;
     
+    /**
+     * Constructor principal del bot.
+     * Inicializa todos los componentes necesarios: playlists, player manager, 
+     * nowplaying handler y alone in voice handler.
+     * 
+     * @param waiter EventWaiter para manejar eventos asíncronos
+     * @param config Configuración del bot
+     * @param settings Manager de configuraciones por servidor
+     */
     public Bot(EventWaiter waiter, BotConfig config, SettingsManager settings)
     {
         this.waiter = waiter;
@@ -62,51 +73,91 @@ public class Bot
         this.aloneInVoiceHandler.init();
     }
     
+    /**
+     * Obtiene la configuración del bot.
+     * @return BotConfig con todas las configuraciones
+     */
     public BotConfig getConfig()
     {
         return config;
     }
     
+    /**
+     * Obtiene el manager de configuraciones por servidor.
+     * @return SettingsManager para gestionar configuraciones
+     */
     public SettingsManager getSettingsManager()
     {
         return settings;
     }
     
+    /**
+     * Obtiene el EventWaiter para manejar eventos asíncronos.
+     * @return EventWaiter instance
+     */
     public EventWaiter getWaiter()
     {
         return waiter;
     }
     
+    /**
+     * Obtiene el thread pool para tareas programadas.
+     * @return ScheduledExecutorService para ejecutar tareas
+     */
     public ScheduledExecutorService getThreadpool()
     {
         return threadpool;
     }
     
+    /**
+     * Obtiene el manager de reproductores de audio.
+     * @return PlayerManager para gestionar reproducción de audio
+     */
     public PlayerManager getPlayerManager()
     {
         return players;
     }
     
+    /**
+     * Obtiene el loader de playlists.
+     * @return PlaylistLoader para cargar playlists
+     */
     public PlaylistLoader getPlaylistLoader()
     {
         return playlists;
     }
     
+    /**
+     * Obtiene el handler de "now playing".
+     * @return NowplayingHandler para mostrar qué se está reproduciendo
+     */
     public NowplayingHandler getNowplayingHandler()
     {
         return nowplaying;
     }
 
+    /**
+     * Obtiene el handler de "alone in voice".
+     * @return AloneInVoiceHandler para gestionar cuando el bot está solo
+     */
     public AloneInVoiceHandler getAloneInVoiceHandler()
     {
         return aloneInVoiceHandler;
     }
     
+    /**
+     * Obtiene la instancia de JDA.
+     * @return JDA instance
+     */
     public JDA getJDA()
     {
         return jda;
     }
     
+    /**
+     * Cierra la conexión de audio para un servidor específico.
+     * @param guildId ID del servidor de Discord
+     */
     public void closeAudioConnection(long guildId)
     {
         if(jda == null) return;
@@ -115,6 +166,10 @@ public class Bot
             threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
     }
     
+    /**
+     * Resetea la actividad del bot según la configuración.
+     * Si la configuración tiene una actividad definida, la establece.
+     */
     public void resetGame()
     {
         if(jda == null || config == null) return;
@@ -125,6 +180,11 @@ public class Bot
             jda.getPresence().setActivity(game);
     }
 
+    /**
+     * Apaga el bot de forma segura.
+     * Cierra todas las conexiones de audio, detiene los reproductores
+     * y termina todos los threads antes de salir.
+     */
     public void shutdown()
     {
         if(shuttingDown)
@@ -153,6 +213,10 @@ public class Bot
         System.exit(0);
     }
 
+    /**
+     * Establece la instancia de JDA del bot.
+     * @param jda Instancia de JDA a establecer
+     */
     public void setJDA(JDA jda)
     {
         this.jda = jda;
