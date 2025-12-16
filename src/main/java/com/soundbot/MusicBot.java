@@ -159,6 +159,9 @@ public class MusicBot extends ListenerAdapter {
         });
     }
     
+    /**
+     * Clase simple para gestionar la música de un servidor.
+     */
     static class GuildMusicManager {
         final AudioPlayer player;
         final TrackScheduler scheduler;
