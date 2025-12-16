@@ -76,12 +76,17 @@ public class MusicBot extends ListenerAdapter {
         }
         
         Member member = event.getMember();
-        if (member == null || member.getVoiceState() == null || !member.getVoiceState().inVoiceChannel()) {
+        if (member == null) {
+            return;
+        }
+        
+        VoiceState voiceState = member.getVoiceState();
+        if (voiceState == null || !voiceState.inVoiceChannel()) {
             event.getChannel().sendMessage(MSG_NOT_IN_VOICE).queue();
             return;
         }
         
-        VoiceChannel voiceChannel = member.getVoiceState() != null ? member.getVoiceState().getChannel() : null;
+        VoiceChannel voiceChannel = voiceState.getChannel();
         if (voiceChannel == null) return;
         
         Guild guild = event.getGuild();
@@ -145,7 +150,7 @@ public class MusicBot extends ListenerAdapter {
             "`!skip` - Salta canción\n" +
             "`!queue` - Muestra la cola\n" +
             "`!help` - Esta ayuda";
-        event.getChannel().sendMessage(help != null ? help : "").queue();
+        event.getChannel().sendMessage(help).queue();
     }
     
     private void connectToVoiceChannel(Guild guild, VoiceChannel channel, GuildMusicManager musicManager) {
