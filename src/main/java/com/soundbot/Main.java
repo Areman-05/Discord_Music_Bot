@@ -26,7 +26,8 @@ public class Main {
                 GatewayIntent.GUILD_VOICE_STATES
             );
             
-            JDA jda = JDABuilder.create(token, intents)
+            JDA jda = JDABuilder.createDefault(token)
+                .enableIntents(intents)
                 .addEventListeners(new MusicBot())
                 .build();
                 
