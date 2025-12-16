@@ -108,8 +108,12 @@ public class MusicBot extends ListenerAdapter {
     
     private void showQueue(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
-        Queue<AudioTrack> queue = musicManager.scheduler.getQueue();
+        if (musicManager == null) {
+            event.getChannel().sendMessage("La cola está vacía.").queue();
+            return;
+        }
         
+        Queue<AudioTrack> queue = musicManager.scheduler.getQueue();
         if (queue.isEmpty() && musicManager.player.getPlayingTrack() == null) {
             event.getChannel().sendMessage("La cola está vacía.").queue();
             return;
