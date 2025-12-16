@@ -97,12 +97,13 @@ public class MusicBot extends ListenerAdapter {
     
     private void skipMusic(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
-        if (musicManager.player.getPlayingTrack() != null) {
-            musicManager.scheduler.nextTrack();
-            event.getChannel().sendMessage("Canción saltada.").queue();
-        } else {
+        if (musicManager == null || musicManager.player.getPlayingTrack() == null) {
             event.getChannel().sendMessage("No hay música reproduciéndose.").queue();
+            return;
         }
+        
+        musicManager.scheduler.nextTrack();
+        event.getChannel().sendMessage("Canción saltada.").queue();
     }
     
     private void showQueue(MessageReceivedEvent event) {
