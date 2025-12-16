@@ -102,14 +102,14 @@ public class BotConfig
             // we may need to write a new config file
             boolean write = false;
 
-            // validate bot token
-            if(token==null || token.isEmpty() || token.equalsIgnoreCase("BOT_TOKEN_HERE"))
+            // Validar token del bot
+            if(token == null || token.isEmpty() || token.equalsIgnoreCase("BOT_TOKEN_HERE"))
             {
                 token = prompt.prompt("Por favor proporciona un token de bot."
                         + "\nLas instrucciones para obtener un token se pueden encontrar aqui:"
                         + "\nhttps://github.com/soundbot/SoundBot/wiki/Getting-a-Bot-Token."
                         + "\nToken del bot: ");
-                if(token==null || token.isEmpty())
+                if(token == null || token.isEmpty())
                 {
                     prompt.alert(Prompt.Level.WARNING, CONTEXT, "No se proporciono token! Saliendo.\n\nUbicacion del config: " + path.toAbsolutePath().toString());
                     return;
@@ -120,8 +120,8 @@ public class BotConfig
                 }
             }
             
-            // validate bot owner
-            if(owner<=0)
+            // Validar propietario del bot
+            if(owner <= 0)
             {
                 try
                 {
@@ -137,7 +137,7 @@ public class BotConfig
                 {
                     owner = 0;
                 }
-                if(owner<=0)
+                if(owner <= 0)
                 {
                     prompt.alert(Prompt.Level.ERROR, CONTEXT, "ID de usuario invalido! Saliendo.\n\nUbicacion del config: " + path.toAbsolutePath().toString());
                     return;
