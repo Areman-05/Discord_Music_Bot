@@ -38,6 +38,13 @@ import ch.qos.logback.classic.Level;
  */
 public class SoundBot 
 {
+    // Constantes para configuración
+    private static final String CONFIG_GENERATE_COMMAND = "generate-config";
+    private static final String MENTION_PREFIX = "@mention";
+    private static final String LOADING_ACTIVITY = "loading...";
+    private static final int LINKED_CACHE_SIZE = 200;
+    private static final int SHUTDOWN_WAIT_TIME_MS = 5000;
+    
     public final static Logger LOG = LoggerFactory.getLogger(SoundBot.class);
     public final static Permission[] RECOMMENDED_PERMS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,
                                 Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
@@ -52,7 +59,7 @@ public class SoundBot
         if(args.length > 0)
             switch(args[0].toLowerCase())
             {
-                case "generate-config":
+                case CONFIG_GENERATE_COMMAND:
                     BotConfig.writeDefaultConfig();
                     return;
                 default:
@@ -92,7 +99,7 @@ public class SoundBot
             JDA jda = JDABuilder.create(config.getToken(), Arrays.asList(INTENTS))
                     .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
                     .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
-                    .setActivity(config.isGameNone() ? null : Activity.playing("loading..."))
+                    .setActivity(config.isGameNone() ? null : Activity.playing(LOADING_ACTIVITY))
                     .setStatus(config.getStatus()==OnlineStatus.INVISIBLE || config.getStatus()==OnlineStatus.OFFLINE 
                             ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
                     .addEventListeners(client, waiter, new Listener(bot))
@@ -105,12 +112,12 @@ public class SoundBot
             if (unsupportedReason != null)
             {
                 prompt.alert(Prompt.Level.ERROR, "SoundBot", "SoundBot cannot be run on this Discord bot: " + unsupportedReason);
-                try{ Thread.sleep(5000);}catch(InterruptedException ignored){}
+                try{ Thread.sleep(SHUTDOWN_WAIT_TIME_MS);}catch(InterruptedException ignored){}
                 jda.shutdown();
                 System.exit(1);
             }
             
-            if(!"@mention".equals(config.getPrefix()))
+            if(!MENTION_PREFIX.equals(config.getPrefix()))
             {
                 LOG.info("Tienes un prefijo personalizado configurado. "
                         + "Si tu prefijo no funciona, asegurate de que el 'MESSAGE CONTENT INTENT' este habilitado "
@@ -148,7 +155,7 @@ public class SoundBot
                 .setOwnerId(Long.toString(config.getOwnerId()))
                 .setEmojis(config.getSuccess(), config.getWarning(), config.getError())
                 .setHelpWord(config.getHelp())
-                .setLinkedCacheSize(200)
+                .setLinkedCacheSize(LINKED_CACHE_SIZE)
                 .setGuildSettingsManager(settings);
         
         // set status if set in config
