@@ -50,6 +50,12 @@
             <artifactId>lavaplayer</artifactId>
             <version>2.2.1</version>
         </dependency>
+        <!-- Opus Native Library for Audio -->
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>opus-java-natives</artifactId>
+            <version>1.1.1</version>
+        </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
