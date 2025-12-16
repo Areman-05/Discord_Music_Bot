@@ -141,7 +141,9 @@ public class MusicBot extends ListenerAdapter {
         }
         
         String queueMessage = sb.toString();
-        event.getChannel().sendMessage(queueMessage).queue();
+        if (queueMessage != null) {
+            event.getChannel().sendMessage(queueMessage).queue();
+        }
     }
     
     private void sendHelp(MessageReceivedEvent event) {
