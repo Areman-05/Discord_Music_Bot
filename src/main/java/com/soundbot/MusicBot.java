@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Queue;
 
 public class MusicBot extends ListenerAdapter {
-    private static final Logger log = LoggerFactory.getLogger(MusicBot.class);
     private static final String PREFIX = "!";
     
     private final AudioPlayerManager playerManager;
@@ -71,7 +70,7 @@ public class MusicBot extends ListenerAdapter {
             return;
         }
         
-        VoiceChannel voiceChannel = member.getVoiceState().getChannel();
+        VoiceChannel voiceChannel = member.getVoiceState() != null ? member.getVoiceState().getChannel() : null;
         if (voiceChannel == null) return;
         
         Guild guild = event.getGuild();
@@ -85,7 +84,7 @@ public class MusicBot extends ListenerAdapter {
     private void stopMusic(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
         musicManager.player.stopTrack();
-        musicManager.scheduler.queue.clear();
+        musicManager.scheduler.clearQueue();
         event.getChannel().sendMessage("Música detenida y cola limpiada.").queue();
     }
     
@@ -101,7 +100,7 @@ public class MusicBot extends ListenerAdapter {
     
     private void showQueue(MessageReceivedEvent event) {
         GuildMusicManager musicManager = getGuildMusicManager(event.getGuild());
-        Queue<AudioTrack> queue = musicManager.scheduler.queue;
+        Queue<AudioTrack> queue = musicManager.scheduler.getQueue();
         
         if (queue.isEmpty() && musicManager.player.getPlayingTrack() == null) {
             event.getChannel().sendMessage("La cola está vacía.").queue();
