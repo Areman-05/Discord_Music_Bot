@@ -72,7 +72,7 @@ public class MusicBot extends ListenerAdapter {
             return;
         }
         
-        VoiceChannel voiceChannel = member.getVoiceState() != null ? member.getVoiceState().getChannel() : null;
+        VoiceChannel voiceChannel = member.getVoiceState().getChannel();
         if (voiceChannel == null) return;
         
         Guild guild = event.getGuild();
