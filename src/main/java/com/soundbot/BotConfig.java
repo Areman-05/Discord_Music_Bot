@@ -27,7 +27,9 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 
 /**
- * 
+ * Clase que gestiona la configuración del bot.
+ * Carga la configuración desde archivos, valida los valores
+ * y proporciona acceso a todas las opciones de configuración.
  * 
  * @author SoundBot Contributors
  */
@@ -52,11 +54,20 @@ public class BotConfig
 
     private boolean valid = false;
     
+    /**
+     * Constructor de BotConfig.
+     * 
+     * @param prompt Instancia de Prompt para interactuar con el usuario
+     */
     public BotConfig(Prompt prompt)
     {
         this.prompt = prompt;
     }
     
+    /**
+     * Carga la configuración desde el archivo de configuración.
+     * Valida el token y el ID del propietario, solicitándolos si faltan.
+     */
     public void load()
     {
         valid = false;
@@ -214,36 +225,64 @@ public class BotConfig
         }
     }
     
+    /**
+     * Verifica si la configuración es válida.
+     * @return true si la configuración se cargó correctamente
+     */
     public boolean isValid()
     {
         return valid;
     }
     
+    /**
+     * Obtiene la ubicación del archivo de configuración.
+     * @return Ruta absoluta del archivo de configuración
+     */
     public String getConfigLocation()
     {
-        return path.toFile().getAbsolutePath();
+        return path != null ? path.toFile().getAbsolutePath() : "N/A";
     }
     
+    /**
+     * Obtiene el prefijo de comandos.
+     * @return Prefijo configurado
+     */
     public String getPrefix()
     {
         return prefix;
     }
     
+    /**
+     * Obtiene el prefijo alternativo de comandos.
+     * @return Prefijo alternativo, o null si está deshabilitado
+     */
     public String getAltPrefix()
     {
         return "NONE".equalsIgnoreCase(altprefix) ? null : altprefix;
     }
     
+    /**
+     * Obtiene el token del bot de Discord.
+     * @return Token del bot
+     */
     public String getToken()
     {
         return token;
     }
     
+    /**
+     * Obtiene la ratio de skip requerida.
+     * @return Ratio de skip (0.0 a 1.0)
+     */
     public double getSkipRatio()
     {
         return skipratio;
     }
     
+    /**
+     * Obtiene el ID del propietario del bot.
+     * @return ID de usuario de Discord del propietario
+     */
     public long getOwnerId()
     {
         return owner;
