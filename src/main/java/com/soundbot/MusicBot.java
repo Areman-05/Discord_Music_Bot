@@ -37,12 +37,13 @@ public class MusicBot extends ListenerAdapter {
         String message = event.getMessage().getContentRaw();
         if (!message.startsWith(PREFIX)) return;
         
-        String command = message.substring(PREFIX.length()).split(" ")[0].toLowerCase();
-        String[] args = message.substring(PREFIX.length() + command.length()).trim().split(" ");
+        String[] parts = message.substring(PREFIX.length()).trim().split("\\s+", 2);
+        String command = parts[0].toLowerCase();
+        String args = parts.length > 1 ? parts[1] : "";
         
         switch (command) {
             case "play":
-                playMusic(event, String.join(" ", args));
+                playMusic(event, args);
                 break;
             case "stop":
                 stopMusic(event);
