@@ -23,16 +23,25 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 /**
- *
+ * Utilidades para formatear texto y datos para mostrar al usuario.
+ * Incluye formateo de nombres de usuario, barras de progreso,
+ * iconos de volumen y listas de canales/roles.
+ * 
  * @author SoundBot Contributors
  */
 public class FormatUtil {
 
+    /**
+     * Formatea un nombre de usuario con su discriminador.
+     * @param username Nombre de usuario
+     * @param discrim Discriminador (formato antiguo de Discord)
+     * @return Nombre formateado (username#discrim o solo username)
+     */
     public static String formatUsername(String username, String discrim)
     {
         if(username == null)
             username = "Usuario desconocido";
-        if(discrim == null || discrim.equals("0000"))
+        if(discrim == null || "0000".equals(discrim))
         {
             return username;
         }
@@ -56,21 +65,31 @@ public class FormatUtil {
         return formatUsername(user.getName(), user.getDiscriminator());
     }
 
+    /**
+     * Genera una barra de progreso visual usando emojis.
+     * @param percent Porcentaje de progreso (0.0 a 1.0)
+     * @return String con la barra de progreso
+     */
     public static String progressBar(double percent)
     {
         if(percent < 0)
             percent = 0;
         if(percent > 1)
             percent = 1;
-        String str = "";
-        for(int i=0; i<12; i++)
-            if(i == (int)(percent*12))
-                str+="\uD83D\uDD18"; // 🔘
+        StringBuilder str = new StringBuilder();
+        for(int i = 0; i < 12; i++)
+            if(i == (int)(percent * 12))
+                str.append("\uD83D\uDD18"); // 🔘
             else
-                str+="▬";
-        return str;
+                str.append("▬");
+        return str.toString();
     }
     
+    /**
+     * Devuelve un emoji según el nivel de volumen.
+     * @param volume Nivel de volumen (0-100)
+     * @return Emoji representando el volumen
+     */
     public static String volumeIcon(int volume)
     {
         if(volume == 0)
